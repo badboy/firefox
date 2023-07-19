@@ -87,10 +87,12 @@ namespace {{ category_name|snake_case }} {
   {% if obj.labeled and obj.labels and obj.labels|length %}
   {{ generate_label_enum(obj)|indent }}
   {% endif %}
+  {% if obj.type != "object" %} {# TODO: Add C++ support #}
   /**
    * {{ obj.description|wordwrap() | replace('\n', '\n     * ') }}
    */
   constexpr impl::{{ obj|type_name }} {{obj.name|snake_case }}({{obj|metric_id}});
+  {% endif %}
 
   {% endfor %}
 }

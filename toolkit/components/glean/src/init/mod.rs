@@ -177,6 +177,7 @@ fn build_configuration(
         use_core_mps: true,
         trim_data_to_registered_pings: true,
         log_level: None,
+        enable_event_timestamps: false,
         rate_limit,
     };
 

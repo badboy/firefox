@@ -452,3 +452,32 @@ add_task(async function test_fog_text_works_unusual_character() {
 
   Assert.greater(rslt.length, 100);
 });
+
+add_task(async function test_fog_object_works() {
+  Assert.equal(
+    undefined,
+    Glean.testOnly.balloons.testGetValue(),
+    "No object stored"
+  );
+  let balloons = [
+    { "color": "red", "diameter": 5 },
+    { "color": "blue", "diameter": 7 },
+  ];
+  Glean.testOnly.balloons.set(balloons);
+
+  let result = Glean.testOnly.balloons.testGetValue();
+  let parsed = JSON.parse(result);
+  Assert.deepEqual(balloons, parsed);
+
+  // colour != color.
+  let invalid = [
+    { "colour": "canadian" },
+    { "colour": "red", "diameter": "small" }
+  ];
+  Glean.testOnly.balloons.set(invalid);
+  Assert.throws(
+    () => Glean.testOnly.balloons.testGetValue(),
+    /NS_ERROR_LOSS_OF_SIGNIFICANT_DATA/,
+    "Should throw because last object was invalid."
+  );
+});
