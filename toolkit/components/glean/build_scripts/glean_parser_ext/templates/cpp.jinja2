@@ -20,6 +20,47 @@ Jinja2 template is not. Please file bugs! #}
 
 namespace mozilla::glean {
 
+{% macro generate_structure(name, struct) %}
+{% if struct.type == "array" %}
+    {% if struct["items"].type == "object" %}
+    {{ generate_structure(name ~ "Item", struct["items"]) -}}
+    {% elif struct["items"].type == "array" %}
+    {{ generate_structure(name ~ "Item", struct["items"]) -}}
+    {% else %}
+    {{ generate_structure(name ~ "Item", struct["items"]) -}}
+    {% endif %}
+    typedef nsTArray<{{ name }}Item> {{ name }};
+
+{% elif struct.type == "object" %}
+    {% for itemname, val in struct.properties.items() %}
+        {% if val.type == "array" %}
+        {% set nested_name = name ~ "Item" ~ itemname|Camelize %}
+        {{ generate_structure(nested_name, val) -}}
+        {% elif val.type == "object" %}
+        {% set nested_name = name ~ "Item" ~ itemname|Camelize ~ "Object" %}
+        {{ generate_structure(nested_name, val) -}}
+        {% endif %}
+    {% endfor %}
+
+    struct {{ name }} {
+        {% for itemname, val in struct.properties.items() %}
+          {% if val.type == "object" %}
+          {{ name ~ "Item" ~ itemname|Camelize ~ "Object" }} {{itemname|snake_case}};
+          {% elif val.type == "array" %}
+          {{ name ~ "Item" ~ itemname|Camelize }} {{itemname|snake_case}};
+          {% else %}
+          {{val.type|structure_type_name}} {{itemname|snake_case}};
+          {% endif %}
+        {% endfor %}
+    };
+{% else %}
+
+typedef {{ struct.type|structure_type_name }} {{ name }};
+
+{% endif %}
+
+{% endmacro %}
+
 {%- macro generate_extra_keys(obj) -%}
 {% for name, suffix in obj["_generate_enums"] %}
 {# we always use the `extra` suffix, because we only expose the new event API #}
@@ -81,18 +122,21 @@ namespace {{ category_name|snake_case }} {
   /**
    * generated from {{ category_name }}.{{ obj.name }}
    */
+  {% if obj|attr("_generate_structure") %}
+{{ generate_structure(obj.name|Camelize ~ "Object", obj._generate_structure) }}
+  extern "C" void _glean_internal_set_object_{{obj.category|snake_case}}_{{obj.name|snake_case}}({{obj.name|Camelize}}Object* obj);
+  {%- endif %}
+
   {% if obj|attr("_generate_enums") %}
 {{ generate_extra_keys(obj) }}
   {%- endif %}
   {% if obj.labeled and obj.labels and obj.labels|length %}
   {{ generate_label_enum(obj)|indent }}
   {% endif %}
-  {% if obj.type != "object" %} {# TODO: Add C++ support #}
   /**
    * {{ obj.description|wordwrap() | replace('\n', '\n     * ') }}
    */
   constexpr impl::{{ obj|type_name }} {{obj.name|snake_case }}({{obj|metric_id}});
-  {% endif %}
 
   {% endfor %}
 }

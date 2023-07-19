@@ -155,6 +155,20 @@ def structure_type_name(typ: str) -> str:
     else:
         return "UNSUPPORTED"
 
+def structure_type_name_internal(typ: str) -> str:
+    """
+    Returns the corresponding Rust type for structure items.
+    """
+
+    if typ == "boolean":
+        return "bool"
+    elif typ == "string":
+        return "nsstring::nsCString"
+    elif typ == "number":
+        return "i64"
+    else:
+        return "UNSUPPORTED"
+
 
 def class_name(obj_type):
     """
@@ -293,6 +307,7 @@ def output_rust(objs, output_fd, ping_names_by_app_id, options={}):
             ("type_name", type_name),
             ("extra_type_name", extra_type_name),
             ("structure_type_name", structure_type_name),
+            ("structure_type_name_internal", structure_type_name_internal),
             ("ctor", ctor),
             ("extra_keys", extra_keys),
             ("metric_id", get_metric_id),

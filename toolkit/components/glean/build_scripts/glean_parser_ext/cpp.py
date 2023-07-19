@@ -66,6 +66,12 @@ def type_name(obj):
                 return "{}Metric<{}>".format(
                     util.Camelize(obj.type), util.Camelize(obj.name) + suffix
                 )
+
+    generate_structure = getattr(obj, "_generate_structure", [])
+    if len(generate_structure):
+        generic = util.Camelize(obj.name) + "Object"
+        return "{}Metric<{}>".format(util.Camelize(obj.type), generic)
+
     return util.Camelize(obj.type) + "Metric"
 
 
@@ -80,6 +86,20 @@ def extra_type_name(typ: str) -> str:
         return "nsCString"
     elif typ == "quantity":
         return "uint32_t"
+    else:
+        return "UNSUPPORTED"
+
+def structure_type_name(typ: str) -> str:
+    """
+    Returns the corresponding Rust type for structure items.
+    """
+
+    if typ == "boolean":
+        return "bool"
+    elif typ == "string":
+        return "nsCString"
+    elif typ == "number":
+        return "uint64_t"
     else:
         return "UNSUPPORTED"
 
@@ -129,6 +149,7 @@ def output_cpp(objs, output_fd, options={}):
             ("snake_case", util.snake_case),
             ("type_name", type_name),
             ("extra_type_name", extra_type_name),
+            ("structure_type_name", structure_type_name),
             ("metric_id", get_metric_id),
             ("ping_id", get_ping_id),
             ("Camelize", util.Camelize),

@@ -48,6 +48,76 @@ pub type {{ name }} = {{ struct.type|structure_type_name }};
 {% endif %}
 {% endmacro %}
 
+{% macro generate_structure_internal(name, struct, rust_name) %}
+{% if struct.type == "array" %}
+    #[allow(non_camel_case_types)]
+    pub type {{ name }} = thin_vec::ThinVec<{{ name }}Item>;
+
+    {% if struct["items"].type == "object" %}
+    {{ generate_structure_internal(name ~ "Item", struct["items"], rust_name ~ "Item") -}}
+    {% elif struct["items"].type == "array" %}
+    {{ generate_structure_internal(name ~ "Item", struct["items"], rust_name ~ "Item") -}}
+    {% else %}
+    {{ generate_structure_internal(name ~ "Item", struct["items"], rust_name ~ "Item") -}}
+    {% endif %}
+
+{% elif struct.type == "object" %}
+    #[allow(non_camel_case_types)]
+    #[repr(C)]
+    #[derive(Debug)]
+    pub struct {{ name }} {
+        {% for itemname, val in struct.properties.items() %}
+          {% if val.type == "object" %}
+          {{itemname|snake_case}}: {{ name ~ "Item" ~ itemname|Camelize ~ "Object" }},
+          {% elif val.type == "array" %}
+          {{itemname|snake_case}}: {{ name ~ "Item" ~ itemname|Camelize }},
+          {% else %}
+          {{itemname|snake_case}}: {{val.type|structure_type_name_internal}},
+          {% endif %}
+        {% endfor %}
+    }
+
+    impl TryFrom<&{{ name }}> for {{ rust_name }} {
+        type Error = ();
+        fn try_from(value: &{{ name }}) -> Result<Self, Self::Error> {
+            Ok(Self {
+            {% for itemname, val in struct.properties.items() %}
+                {% if val.type == "array" %}
+                {{itemname}}: {
+                  value.{{itemname}}.iter()
+                      .map(|elem| {{ rust_name ~ "Item" ~ itemname|Camelize ~ "Item" }}::try_from(elem))
+                      .collect::<Result<{{ rust_name ~ "Item" ~ itemname|Camelize }}, ()>>()?
+                },
+                {% elif val.type == "object" %}
+                {{itemname}}: todo!(),
+                {% elif val.type == "string" %}
+                {{itemname}}: Some(value.{{itemname}}.to_utf8().into()),
+                {% elif val.type == "number" %}
+                {{itemname}}: Some(value.{{itemname}}),
+                {% else %}
+                {{itemname}}: todo!(),  // {{val.type}}
+                {% endif %}
+            {% endfor %}
+            })
+        }
+    }
+
+    {% for itemname, val in struct.properties.items() %}
+        {% if val.type == "array" %}
+        {% set nested_name = name ~ "Item" ~ itemname|Camelize %}
+        {{ generate_structure_internal(nested_name, val, rust_name ~ "Item" ~ itemname|Camelize) -}}
+        {% elif val.type == "object" %}
+        {% set nested_name = name ~ "Item" ~ itemname|Camelize ~ "Object" %}
+        {{ generate_structure_internal(nested_name, val, rust_name ~ "Item" ~ itemname|Camelize) -}}
+        {% endif %}
+    {% endfor %}
+{% else %}
+#[allow(non_camel_case_types)]
+pub type {{ name }} = {{ struct.type|structure_type_name_internal }};
+{% endif %}
+
+{% endmacro %}
+
 {% macro generate_extra_keys(obj) -%}
 {% for name, _ in obj["_generate_enums"] %}
 {# we always use the `extra` suffix, because we only expose the new event API #}
@@ -132,6 +202,17 @@ pub mod {{ category_name|snake_case }} {
     {% endif %}
     {% if obj|attr("_generate_structure") %}
     {{ generate_structure(obj.name|Camelize ~ "Object", obj._generate_structure) -}}
+    {{ generate_structure_internal("_internal_" ~ obj.name|Camelize ~ "Object", obj._generate_structure, obj.name|Camelize ~ "Object") -}}
+    #[no_mangle]
+    pub unsafe extern "C" fn _glean_internal_set_object_{{obj.category|snake_case}}_{{obj.name|snake_case}}(obj: *const _internal_{{obj.name|Camelize}}Object) {
+        assert!(!obj.is_null());
+        let obj = &*obj;
+        {% if obj._generate_structure.type == "array" %}
+        let obj = obj.iter().map(|elem| {{ obj.name|Camelize }}ObjectItem::try_from(elem)).collect::<Result<{{ obj.name|Camelize }}Object, ()>>().expect("boom");
+        {% else %}
+        let obj = {{ obj.name|Camelize }}Object::try_from(obj).expect("boom");
+        {% endif %}
+    }
     {% endif %}
     #[allow(non_upper_case_globals)]
     /// generated from {{ category_name }}.{{ obj.name }}
