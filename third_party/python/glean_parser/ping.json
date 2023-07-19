@@ -1,0 +1,44 @@
+{
+  "ping_info": {
+    "seq": 0,
+    "start_time": "2023-08-15T12:32+02:00",
+    "end_time": "2023-08-15T12:36+02:00"
+  },
+  "client_info": {
+    "telemetry_sdk_build": "53.2.0",
+    "os": "Linux",
+    "os_version": "6.4",
+    "app_channel": "default",
+    "locale": "en-US",
+    "app_display_version": "118.0a1",
+    "architecture": "x86_64",
+    "app_build": "20230815123048",
+    "build_date": "1970-01-01T00:00:00+00:00",
+    "first_run_date": "2023-08-15+02:00",
+    "client_id": "1feec010-0afa-466c-8f6b-c36bb9faabc2"
+  },
+  "metrics": {
+    "object": {
+      "test_only.crash_stack_threads": [
+        {
+          "frames": [
+            {
+              "module_index": 0,
+              "ip": "0x0",
+              "trust": "none"
+            }
+          ]
+        }
+      ],
+      "other.object": {
+          "frames": [
+            {
+              "module_index": 0,
+              "ip": "0x0",
+              "trust": "none"
+            }
+          ]
+        }
+    }
+  }
+}

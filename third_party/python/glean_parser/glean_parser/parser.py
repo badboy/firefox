@@ -8,6 +8,7 @@
 Code for parsing metrics.yaml files.
 """
 
+import traceback
 import functools
 from pathlib import Path
 import textwrap
@@ -209,7 +210,7 @@ def _instantiate_metrics(
                 yield util.format_error(
                     filepath,
                     f"On instance {category_key}.{metric_key}",
-                    str(e),
+                    "".join(traceback.format_exception(type(e), e, e.__traceback__)),
                     metric_val.defined_in["line"],
                 )
                 metric_obj = None
