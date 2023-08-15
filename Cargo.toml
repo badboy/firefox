@@ -218,6 +218,9 @@ yoke-derive = { git = "https://github.com/unicode-org/icu4x", rev = "14e9a3a9857
 zerofrom-derive = { git = "https://github.com/unicode-org/icu4x", rev = "14e9a3a9857be74582abe2dfa7ab799c5eaac873" }
 zerovec-derive = { git = "https://github.com/unicode-org/icu4x", rev = "14e9a3a9857be74582abe2dfa7ab799c5eaac873" }
 
+glean-core = { path = "/home/jer/src/mozilla/glean/glean-core" }
+glean = { path = "/home/jer/src/mozilla/glean/glean-core/rlb" }
+
 # Patch mio 0.6 to use winapi 0.3 and miow 0.3, getting rid of winapi 0.2.
 # There is not going to be new version of mio 0.6, mio now being >= 0.7.11.
 [patch.crates-io.mio]
