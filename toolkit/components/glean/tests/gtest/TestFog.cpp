@@ -670,6 +670,22 @@ TEST_F(FOGFixture, TestLabeledQuantityWorks) {
       0, test_only::button_jars.Get("push"_ns).TestGetValue().unwrap().ref());
 }
 
+TEST_F(FOGFixture, TestObjectWorks) {
+  ASSERT_EQ(mozilla::Nothing(),
+            test_only::balloons.TestGetValueAsJSONString().unwrap());
+  test_only::BalloonsObject balloons;
+  balloons.EmplaceBack(test_only::BalloonsObjectItem{
+      .colour = Some("blorange"_ns),
+      .diameter = Some(42),
+  });
+  test_only::balloons.Set(balloons);
+
+  // TODO(bug 1881023): Check the full obj, not just JSON substr.
+  nsCString json =
+      test_only::balloons.TestGetValueAsJSONString().unwrap().ref();
+  ASSERT_THAT(json.get(), testing::HasSubstr("blorange"));
+}
+
 extern "C" void Rust_TestRustInGTest();
 TEST_F(FOGFixture, TestRustInGTest) { Rust_TestRustInGTest(); }
 
