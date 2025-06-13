@@ -686,6 +686,24 @@ TEST_F(FOGFixture, TestObjectWorks) {
   ASSERT_THAT(json.get(), testing::HasSubstr("blorange"));
 }
 
+TEST_F(FOGFixture, TestObjectWorks2) {
+  ASSERT_EQ(mozilla::Nothing(),
+            test_only::crash_stack.TestGetValueAsJSONString().unwrap());
+  test_only::CrashStackObject crash_obj {
+    .status = Some("failure"_ns),
+    .main_module = Some(17),
+    .crash_info = mozilla::Nothing(),
+    .modules = mozilla::Nothing(),
+  };
+
+
+  test_only::crash_stack.Set(crash_obj);
+
+  nsCString json =
+    test_only::crash_stack.TestGetValueAsJSONString().unwrap().ref();
+  ASSERT_THAT(json.get(), testing::HasSubstr("failure"));
+}
+
 extern "C" void Rust_TestRustInGTest();
 TEST_F(FOGFixture, TestRustInGTest) { Rust_TestRustInGTest(); }
 
