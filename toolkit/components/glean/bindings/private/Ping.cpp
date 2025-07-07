@@ -68,6 +68,8 @@ void Ping::SetEnabled(bool aValue) const {
   fog_set_ping_enabled_by_id(mId, aValue);
 }
 
+bool Ping::IsSubmittedOverOHTTP() const { return fog_ping_uses_ohttp(mId); }
+
 void Ping::TestBeforeNextSubmit(PingTestCallback&& aCallback) const {
   TestBeforeNextSubmitFallible(
       [callback = std::move(aCallback)](const nsACString& aReason) -> nsresult {
@@ -116,6 +118,12 @@ GleanPing::Submit(const nsACString& aReason) {
 NS_IMETHODIMP
 GleanPing::SetEnabled(bool aValue) {
   mPing.SetEnabled(aValue);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+GleanPing::IsSubmittedOverOHTTP(bool* aOut) {
+  *aOut = mPing.IsSubmittedOverOHTTP();
   return NS_OK;
 }
 

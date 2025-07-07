@@ -30,3 +30,14 @@ add_task(async () => {
   ok(!("client_info" in ping), "No client_info allowed.");
   ok(!("ping_info" in ping), "No ping_info allowed.");
 });
+
+add_task(async () => {
+  ok(
+    !GleanPings.onePingOnly.isSubmittedOverOHTTP(),
+    "one-ping-only does NOT use OHTTP"
+  );
+  ok(
+    GleanPings.testOhttpPing.isSubmittedOverOHTTP(),
+    "test-ohttp-ping DOES use OHTTP"
+  );
+});

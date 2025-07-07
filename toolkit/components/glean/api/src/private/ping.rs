@@ -15,13 +15,15 @@ pub enum Ping {
         inner: glean::private::PingType,
         name: String,
     },
-    Child,
+    Child {
+        name: String,
+    },
 }
 
 impl malloc_size_of::MallocSizeOf for Ping {
     fn size_of(&self, ops: &mut malloc_size_of::MallocSizeOfOps) -> usize {
         match self {
-            Ping::Child => 0,
+            Ping::Child { .. } => 0,
             Ping::Parent { inner, .. } => inner.size_of(ops),
         }
     }
@@ -49,10 +51,10 @@ impl Ping {
         follows_collection_enabled: bool,
         uploader_capabilities: Vec<String>,
     ) -> Self {
+        let name = name.into();
         if need_ipc() {
-            Ping::Child
+            Ping::Child { name }
         } else {
-            let name = name.into();
             Ping::Parent {
                 inner: glean::private::PingType::new(
                     name.clone(),
@@ -71,10 +73,17 @@ impl Ping {
         }
     }
 
+    pub fn name(&self) -> &str {
+        match self {
+            Ping::Child { name } => name,
+            Ping::Parent { name, .. } => name,
+        }
+    }
+
     pub fn set_enabled(&self, enabled: bool) {
         match self {
             Ping::Parent { inner, .. } => inner.set_enabled(enabled),
-            Ping::Child => {
+            Ping::Child { .. } => {
                 panic!("Cannot use ping set_enabled API from non-parent process!");
             }
         }
@@ -91,7 +100,7 @@ impl Ping {
     pub fn test_before_next_submit(&self, cb: impl FnOnce(Option<&str>) + Send + 'static) {
         match self {
             Ping::Parent { inner, .. } => inner.test_before_next_submit(cb),
-            Ping::Child => {
+            Ping::Child { .. } => {
                 panic!("Cannot use ping test API from non-parent process!");
             }
         };
@@ -125,7 +134,7 @@ impl glean::traits::Ping for Ping {
                 }
                 inner.submit(reason);
             }
-            Ping::Child => {
+            Ping::Child { .. } => {
                 log::error!(
                     "Unable to submit ping in non-main process. This operation will be ignored."
                 );

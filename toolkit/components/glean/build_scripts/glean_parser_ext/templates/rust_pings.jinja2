@@ -137,3 +137,32 @@ pub fn fog_ping_alloc_size(ops: &mut malloc_size_of::MallocSizeOfOps) -> usize {
   {% endfor %}
   n
 }
+
+#[doc(hidden)]
+pub fn fog_ping_uses_ohttp(id: u32) -> bool {
+    if id & (1 << crate::factory::DYNAMIC_PING_BIT) > 0 {
+        let map = crate::factory::__jog_metric_maps::PING_MAP
+            .read()
+            .expect("Read lock for dynamic ping map was poisoned!");
+        if let Some(ping) = map.get(&id) {
+              return matches!(ping.name(),
+                {% for obj in all_objs['pings'].values() %}
+                  {% if "ohttp" in obj.uploader_capabilities %}
+                  | "{{ obj.name }}"
+                  {% endif %}
+                {% endfor %}
+              );
+        }
+        return false;
+    }
+    match id {
+{% for obj in all_objs['pings'].values() %}
+        {% if "ohttp" in obj.uploader_capabilities %}
+        // {{ obj.name }}
+        {{ obj.name|ping_id }} => true,
+        {% endif %}
+{% endfor %}
+        // all other pings don't use OHTTP
+        _ => false
+    }
+}

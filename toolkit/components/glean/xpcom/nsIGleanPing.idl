@@ -69,6 +69,11 @@ interface nsIGleanPing : nsISupports
   void setEnabled(in boolean aValue);
 
   /**
+   * Whether this ping is sent over OHTTP.
+   */
+  boolean isSubmittedOverOHTTP();
+
+  /**
    * **Test-only API**
    *
    * Register a callback to be called right before this ping is next submitted.

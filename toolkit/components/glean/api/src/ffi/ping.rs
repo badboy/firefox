@@ -21,3 +21,8 @@ pub extern "C" fn fog_submit_ping_by_id(id: u32, reason: &nsACString) {
 pub extern "C" fn fog_set_ping_enabled_by_id(id: u32, value: bool) {
     pings::set_ping_enabled_by_id(id, value);
 }
+
+#[no_mangle]
+pub extern "C" fn fog_ping_uses_ohttp(id: u32) -> bool {
+    pings::fog_ping_uses_ohttp(id)
+}

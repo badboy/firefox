@@ -95,6 +95,7 @@ class Ping {
    * @param aValue When true, enable metric collection.
    */
   void SetEnabled(bool aValue) const;
+  bool IsSubmittedOverOHTTP() const;
 
  private:
   nsresult SubmitInternal(const nsACString& aReason = nsCString()) const;
