@@ -130,3 +130,18 @@
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
+
+-dontwarn java.awt.*
+-keep class com.sun.jna.* { *; }
+-keepclassmembers class * extends com.sun.jna.* { public *; }
+# Annotated interfaces (including methods which are also kept in implementing classes)
+-keep @com.sun.jna.Structure.FieldOrder interface * {
+    *;
+}
+
+-keep class org.mozilla.experiments.nimbus.internal.* { *; }
+-keepclassmembers class * extends org.mozilla.experiments.nimbus.internal.* { public *; }
+# Annotated interfaces (including methods which are also kept in implementing classes)
+-keep @org.mozilla.experiments.nimbus.internal.UniffiLib interface * {
+    *;
+}
