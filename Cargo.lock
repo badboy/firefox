@@ -777,7 +777,7 @@ dependencies = [
  "moz_task",
  "nserror",
  "nsstring",
- "rkv",
+ "rkv 0.19.0",
  "sha2",
  "static_prefs",
  "storage_variant",
@@ -2399,7 +2399,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "libc",
- "rkv",
+ "rkv 0.19.0",
  "tempfile",
 ]
 
@@ -2704,8 +2704,6 @@ dependencies = [
 [[package]]
 name = "glean"
 version = "64.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc009205ab570a032a9a620932acf697e69744881149ec10188c2a6e9f8bb058"
 dependencies = [
  "crossbeam-channel",
  "glean-core",
@@ -2719,8 +2717,6 @@ dependencies = [
 [[package]]
 name = "glean-core"
 version = "64.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b6452ff6beb4f45f49bc48cec2c62d6b1c93036e09afa646c033009a98bab9a"
 dependencies = [
  "android_logger",
  "bincode",
@@ -2731,10 +2727,10 @@ dependencies = [
  "malloc_size_of_derive",
  "once_cell",
  "oslog",
- "rkv",
+ "rkv 0.20.0",
  "serde",
  "serde_json",
- "thiserror 1.999.999",
+ "thiserror 2.0.9",
  "time 0.3.36",
  "uniffi",
  "uuid",
@@ -3605,7 +3601,7 @@ dependencies = [
  "moz_task",
  "nserror",
  "nsstring",
- "rkv",
+ "rkv 0.19.0",
  "rusqlite 0.33.0",
  "serde",
  "serde_json",
@@ -4496,7 +4492,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
- "rkv",
+ "rkv 0.19.0",
  "scopeguard",
  "scroll",
  "semver",
@@ -5710,6 +5706,28 @@ dependencies = [
  "thiserror 1.999.999",
  "url",
  "uuid",
+]
+
+[[package]]
+name = "rkv"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f67a9dbc634fcd36a2d1d800ca818065dcf71a1d907dc35130c2d1552c6e1dc"
+dependencies = [
+ "arrayref",
+ "bincode",
+ "bitflags 2.9.0",
+ "id-arena",
+ "lazy_static",
+ "log",
+ "malloc_size_of_derive",
+ "ordered-float",
+ "serde",
+ "serde_derive",
+ "thiserror 2.0.9",
+ "url",
+ "uuid",
+ "wr_malloc_size_of",
 ]
 
 [[package]]

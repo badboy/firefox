@@ -259,3 +259,5 @@ viaduct = { git = "https://github.com/mozilla/application-services", rev = "f1ee
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "f1ee0a01164344c701b3e46c0cb1b58223219ba7" }
 
 allocator-api2 = { path = "third_party/rust/allocator-api2" }
+glean-core = { path = "../glean/glean-core" }
+glean = { path = "../glean/glean-core/rlb" }
