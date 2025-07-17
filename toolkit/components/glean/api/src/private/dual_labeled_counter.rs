@@ -62,7 +62,11 @@ impl DualLabeledCounterMetric {
         // * <maybe some separate, third thing>
         // but that none of these are guaranteed to be sufficiently better to be worth
         // the toil at this point in time.
-        let label = format!("{key}\u{001E}{category}");
+        let mut label = String::with_capacity(key.len() + category.len() + 1);
+        label.push_str(key);
+        label.push('\u{001E}');
+        label.push_str(category);
+
         let id = match self {
             DualLabeledCounterMetric::Parent { id, .. } => *id,
             DualLabeledCounterMetric::Child(meta) => meta.id,
