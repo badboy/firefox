@@ -185,22 +185,6 @@ impl CustomDistribution for CustomDistributionMetric {
         );
     }
 
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(
-        &self,
-        ping_name: S,
-    ) -> Option<DistributionData> {
-        let ping_name = ping_name.into().map(|s| s.to_string());
-        match self {
-            CustomDistributionMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            CustomDistributionMetric::Child(meta) => {
-                panic!(
-                    "Cannot get test value for {:?} in non-parent process!",
-                    meta.id
-                )
-            }
-        }
-    }
-
     pub fn test_get_num_recorded_errors(&self, error: ErrorType) -> i32 {
         match self {
             CustomDistributionMetric::Parent { inner, .. } => {
@@ -210,6 +194,21 @@ impl CustomDistribution for CustomDistributionMetric {
                 "Cannot get number of recorded errors for {:?} in non-parent process!",
                 meta.id
             ),
+        }
+    }
+}
+
+#[inherent]
+impl glean::TestGetValue<DistributionData> for CustomDistributionMetric {
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<DistributionData> {
+        match self {
+            CustomDistributionMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
+            CustomDistributionMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
+            }
         }
     }
 }

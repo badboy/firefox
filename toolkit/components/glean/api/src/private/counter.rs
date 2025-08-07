@@ -165,31 +165,6 @@ impl Counter for CounterMetric {
 
     /// **Test-only API.**
     ///
-    /// Get the currently stored value as an integer.
-    /// This doesn't clear the stored value.
-    ///
-    /// ## Arguments
-    ///
-    /// * `ping_name` - the storage name to look into.
-    ///
-    /// ## Return value
-    ///
-    /// Returns the stored value or `None` if nothing stored.
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(&self, ping_name: S) -> Option<i32> {
-        let ping_name = ping_name.into().map(|s| s.to_string());
-        match self {
-            CounterMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            CounterMetric::Child(meta) => {
-                panic!(
-                    "Cannot get test value for {:?} in non-parent process!",
-                    meta.id
-                )
-            }
-        }
-    }
-
-    /// **Test-only API.**
-    ///
     /// Gets the number of recorded errors for the given metric and error type.
     ///
     /// # Arguments
@@ -208,6 +183,33 @@ impl Counter for CounterMetric {
                 "Cannot get the number of recorded errors for {:?} in non-parent process!",
                 meta.id
             ),
+        }
+    }
+}
+
+#[inherent]
+impl glean::TestGetValue<i32> for CounterMetric {
+    /// **Test-only API.**
+    ///
+    /// Get the currently stored value as an integer.
+    /// This doesn't clear the stored value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `ping_name` - the storage name to look into.
+    ///
+    /// ## Return value
+    ///
+    /// Returns the stored value or `None` if nothing stored.
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<i32> {
+        match self {
+            CounterMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
+            CounterMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
+            }
         }
     }
 }

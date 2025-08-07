@@ -131,34 +131,6 @@ impl StringList for StringListMetric {
         }
     }
 
-    /// **Test-only API.**
-    ///
-    /// Get the currently stored values.
-    /// This doesn't clear the stored value.
-    ///
-    /// ## Arguments
-    ///
-    /// * `storage_name` - the storage name to look into.
-    ///
-    /// ## Return value
-    ///
-    /// Returns the stored value or `None` if nothing stored.
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(
-        &self,
-        ping_name: S,
-    ) -> Option<Vec<String>> {
-        let ping_name = ping_name.into().map(|s| s.to_string());
-        match self {
-            StringListMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            StringListMetric::Child(meta) => {
-                panic!(
-                    "Cannot get test value for {:?} in non-parent process!",
-                    meta.id
-                )
-            }
-        }
-    }
-
     /// **Exported for test purposes.**
     ///
     /// Gets the number of recorded errors for the given error type.
@@ -179,6 +151,33 @@ impl StringList for StringListMetric {
                 "Cannot get the number of recorded errors for {:?} in non-parent process!",
                 meta.id
             ),
+        }
+    }
+}
+
+#[inherent]
+impl glean::TestGetValue<Vec<String>> for StringListMetric {
+    /// **Test-only API.**
+    ///
+    /// Get the currently stored values.
+    /// This doesn't clear the stored value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `storage_name` - the storage name to look into.
+    ///
+    /// ## Return value
+    ///
+    /// Returns the stored value or `None` if nothing stored.
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<Vec<String>> {
+        match self {
+            StringListMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
+            StringListMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
+            }
         }
     }
 }

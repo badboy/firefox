@@ -132,28 +132,27 @@ impl Rate for RateMetric {
         }
     }
 
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(
-        &self,
-        ping_name: S,
-    ) -> Option<glean::Rate> {
-        let ping_name = ping_name.into().map(|s| s.to_string());
-        match self {
-            RateMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            RateMetric::Child(meta) => {
-                panic!(
-                    "Cannot get test value for {:?} in non-parent process!",
-                    meta.id
-                );
-            }
-        }
-    }
-
     pub fn test_get_num_recorded_errors(&self, error: glean::ErrorType) -> i32 {
         match self {
             RateMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             RateMetric::Child(meta) => {
                 panic!(
                     "Cannot get the number of recorded errors for {:?} in non-parent process!",
+                    meta.id
+                );
+            }
+        }
+    }
+}
+
+#[inherent]
+impl glean::TestGetValue<glean::Rate> for RateMetric {
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<glean::Rate> {
+        match self {
+            RateMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
+            RateMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
                     meta.id
                 );
             }

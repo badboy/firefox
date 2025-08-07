@@ -119,28 +119,6 @@ impl glean::traits::Uuid for UuidMetric {
         }
     }
 
-    /// **Test-only API.**
-    ///
-    /// Get the stored UUID value.
-    /// This doesn't clear the stored value.
-    ///
-    /// ## Arguments
-    ///
-    /// * `storage_name` - the storage name to look into.
-    ///
-    /// ## Return value
-    ///
-    /// Returns the stored value or `None` if nothing stored.
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(&self, storage_name: S) -> Option<Uuid> {
-        let storage_name = storage_name.into().map(|s| s.to_string());
-        match self {
-            UuidMetric::Parent { inner, .. } => inner
-                .test_get_value(storage_name)
-                .and_then(|s| Uuid::parse_str(&s).ok()),
-            UuidMetric::Child(_c) => panic!("Cannot get test value for in non-main process!"),
-        }
-    }
-
     /// **Exported for test purposes.**
     ///
     /// Gets the number of recorded errors for the given metric and error type.
@@ -160,6 +138,30 @@ impl glean::traits::Uuid for UuidMetric {
             UuidMetric::Child(_c) => {
                 panic!("Cannot get test value for UuidMetric in non-main process!")
             }
+        }
+    }
+}
+
+#[inherent]
+impl glean::TestGetValue<Uuid> for UuidMetric {
+    /// **Test-only API.**
+    ///
+    /// Get the stored UUID value.
+    /// This doesn't clear the stored value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `storage_name` - the storage name to look into.
+    ///
+    /// ## Return value
+    ///
+    /// Returns the stored value or `None` if nothing stored.
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<Uuid> {
+        match self {
+            UuidMetric::Parent { inner, .. } => inner
+                .test_get_value(ping_name)
+                .and_then(|s| Uuid::parse_str(&s).ok()),
+            UuidMetric::Child(_c) => panic!("Cannot get test value for in non-main process!"),
         }
     }
 }

@@ -200,18 +200,6 @@ impl<K: 'static + ExtraKeys + Send + Sync + Clone> Event for EventMetric<K> {
         }
     }
 
-    pub fn test_get_value<'a, S: Into<Option<&'a str>>>(
-        &self,
-        ping_name: S,
-    ) -> Option<Vec<RecordedEvent>> {
-        match self {
-            EventMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            EventMetric::Child(_) => {
-                panic!("Cannot get test value for event metric in non-main process!",)
-            }
-        }
-    }
-
     pub fn test_get_num_recorded_errors(&self, error: glean::ErrorType) -> i32 {
         match self {
             EventMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
@@ -219,6 +207,18 @@ impl<K: 'static + ExtraKeys + Send + Sync + Clone> Event for EventMetric<K> {
                 "Cannot get the number of recorded errors for {:?} in non-main process!",
                 meta.id
             ),
+        }
+    }
+}
+
+#[inherent]
+impl<K> glean::TestGetValue<Vec<RecordedEvent>> for EventMetric<K> {
+    pub fn test_get_value(&self, ping_name: Option<String>) -> Option<Vec<RecordedEvent>> {
+        match self {
+            EventMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
+            EventMetric::Child(_) => {
+                panic!("Cannot get test value for event metric in non-main process!",)
+            }
         }
     }
 }
