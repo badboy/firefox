@@ -16,6 +16,7 @@ from buildconfig import topsrcdir
 from glean_parser import lint, metrics, parser, translate, util
 from glean_parser.lint import CheckType, GlinterNit
 from glean_parser.pings import Ping
+from glean_parser.metrics import Metric
 from metrics_header_names import convert_yaml_path_to_header_name
 from mozbuild.util import FileAvoidWrite, memoize
 from util import generate_metric_ids
@@ -142,7 +143,32 @@ def _lint_pings(pings):
     return nits
 
 
-def _lint_metrics(objs, parser_config, file=sys.stderr):
+def _lint_metrics(category, metrics):
+    """
+    Extra lints applied to metrics.
+    """
+    nits = []
+    # Use Counters are exempt for now
+    if category.startswith("use.counter"):
+        return nits
+
+    for metric_name, metric in sorted(list(metrics.items())):
+        assert isinstance(metric, Metric)
+
+        data_sensitivity = getattr(metric, 'data_sensitivity', None)
+        if not data_sensitivity:
+            nits.append(
+                GlinterNit(
+                    check_name="DATA_SENSITIVITY_REQUIRED",
+                    name=f"{category}.{metric_name}",
+                    msg=f"Metric {category}.{metric_name} is missing a data sensitivity.",
+                    check_type=CheckType.error,
+                )
+            )
+
+    return nits
+
+def _lint_all(objs, parser_config, file=sys.stderr):
     """
     Extra lints for metrics and pings.
     """
@@ -151,13 +177,11 @@ def _lint_metrics(objs, parser_config, file=sys.stderr):
     for category_name, category in sorted(list(objs.items())):
         if category_name == "pings":
             nits.extend(_lint_pings(category))
-
-        if category_name == "tags":
+        elif category_name == "tags":
             # currently we have no linting for tags
             continue
-
-        # handling metrics
-        # we don't have any extra lints yet.
+        else:
+            nits.extend(_lint_metrics(category_name, category))
 
     if nits:
         print("Sorry, run_glean_parser found some glinter nits:", file=file)
@@ -186,7 +210,7 @@ def parse_with_options(input_files, options, file=sys.stderr):
     objects = all_objs.value
 
     # m-c specific lints
-    nits = _lint_metrics(objects, options, file=file)
+    nits = _lint_all(objects, options, file=file)
     if nits:
         raise ParserError("additional glinter nits found during parse")
 
