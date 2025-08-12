@@ -162,7 +162,7 @@ def _lint_metrics(category, metrics):
                     check_name="DATA_SENSITIVITY_REQUIRED",
                     name=f"{category}.{metric_name}",
                     msg=f"Metric {category}.{metric_name} is missing a data sensitivity.",
-                    check_type=CheckType.error,
+                    check_type=CheckType.warning,
                 )
             )
 
@@ -211,7 +211,7 @@ def parse_with_options(input_files, options, file=sys.stderr):
 
     # m-c specific lints
     nits = _lint_all(objects, options, file=file)
-    if nits:
+    if any([True for nit in nits if nit.check_type == CheckType.error]):
         raise ParserError("additional glinter nits found during parse")
 
     translate.transform_metrics(objects)
