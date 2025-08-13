@@ -79,7 +79,7 @@ class RecordedNimbusContextTest {
     @Test
     fun `GIVEN an instance of RecordedNimbusContext WHEN record called THEN the value recorded to Glean should match the expected value`() {
         var recordedValue: JsonElement? = null
-        Pings.nimbus.testBeforeNextSubmit {
+        val job = Pings.nimbus.testBeforeNextSubmit {
             recordedValue = GleanNimbus.recordedNimbusContext.testGetValue()
         }
 
@@ -91,6 +91,7 @@ class RecordedNimbusContextTest {
         )
         recordedContext.record()
 
+        job.join()
         assertNotNull(recordedValue)
         assertEquals(
             buildJsonObject {
