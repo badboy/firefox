@@ -65,7 +65,7 @@ impl MemoryDistributionMetric {
                 ),
             ),
             MemoryDistributionMetric::Child(_) => {
-                panic!("Can't get a child metric from a child metric")
+                panic!("Cannot get a child metric from a child metric")
             }
         }
     }
@@ -119,7 +119,7 @@ impl MemoryDistributionMetric {
             MemoryDistributionMetric::Child(_) => {
                 // TODO(bug 1920957): Buffering not implemented for child processes yet. We don't
                 // want to panic though.
-                log::warn!("Can't get a local memory distribution from a child metric. No data will be recorded.");
+                log::warn!("Cannot get a local memory distribution from a child metric. No data will be recorded.");
                 LocalMemoryDistribution::Child
             }
         }
@@ -136,7 +136,7 @@ impl LocalMemoryDistribution<'_> {
         match self {
             LocalMemoryDistribution::Parent(p) => p.accumulate(sample),
             LocalMemoryDistribution::Child => {
-                log::debug!("Can't accumulate local memory distribution in a child process.")
+                log::debug!("Cannot accumulate local memory distribution in a child process.")
             }
         }
     }
@@ -271,7 +271,9 @@ mod test {
 
         metric.accumulate(42);
 
-        let metric_data = metric.test_get_value(Some("test-ping".to_string())).unwrap();
+        let metric_data = metric
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap();
         assert_eq!(1, metric_data.values[&42494]);
         assert_eq!(43008, metric_data.sum);
     }
@@ -291,7 +293,9 @@ mod test {
             child_metric.accumulate(13 * 9);
         }
 
-        let metric_data = parent_metric.test_get_value(Some("test-ping".to_string())).unwrap();
+        let metric_data = parent_metric
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap();
         assert_eq!(1, metric_data.values[&42494]);
         assert_eq!(43008, metric_data.sum);
 

@@ -814,7 +814,7 @@ impl malloc_size_of::MallocSizeOf for BooleanMetric {
 impl<K> malloc_size_of::MallocSizeOf for EventMetric<K> {
     fn size_of(&self, ops: &mut malloc_size_of::MallocSizeOfOps) -> usize {
         match self {
-            EventMetric::Child(_c) => 0,
+            EventMetric::Child(_) => 0,
             EventMetric::Parent { inner, .. } => inner.size_of(ops),
         }
     }

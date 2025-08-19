@@ -71,7 +71,7 @@ impl StringMetric {
     pub(crate) fn child_metric(&self) -> Self {
         match self {
             StringMetric::Parent { .. } => StringMetric::Child(StringMetricIpc),
-            StringMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            StringMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -101,10 +101,12 @@ impl glean::traits::String for StringMetric {
                 inner.set(value);
             }
             StringMetric::Child(_) => {
-                log::error!("Unable to set string metric in non-main process. This operation will be ignored.");
+                log::error!(
+                    "Unable to set string metric in non-parent process. This operation will be ignored."
+                );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set string metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set string metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         };
@@ -127,7 +129,7 @@ impl glean::traits::String for StringMetric {
         match self {
             StringMetric::Parent { id: _, inner } => inner.test_get_num_recorded_errors(error),
             StringMetric::Child(_) => panic!(
-                "Cannot get the number of recorded errors for string metric in non-main process!"
+                "Cannot get the number of recorded errors for string metric in non-parent process!"
             ),
         }
     }
@@ -152,7 +154,7 @@ impl glean::TestGetValue<std::string::String> for StringMetric {
         match self {
             StringMetric::Parent { id: _, inner } => inner.test_get_value(ping_name),
             StringMetric::Child(_) => {
-                panic!("Cannot get test value for string metric in non-main process!")
+                panic!("Cannot get test value for string metric in non-parent process!")
             }
         }
     }
@@ -172,7 +174,9 @@ mod test {
 
         assert_eq!(
             "test_string_value",
-            metric.test_get_value(Some("test-ping".to_string())).unwrap()
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
         );
     }
 
@@ -200,7 +204,10 @@ mod test {
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
 
         assert!(
-            "test_parent_value" == parent_metric.test_get_value(Some("test-ping".to_string())).unwrap(),
+            "test_parent_value"
+                == parent_metric
+                    .test_get_value(Some("test-ping".to_string()))
+                    .unwrap(),
             "String metrics should only work in the parent process"
         );
     }

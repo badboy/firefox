@@ -83,7 +83,7 @@ impl CustomDistributionMetric {
                 ))
             }
             CustomDistributionMetric::Child(_) => {
-                panic!("Can't get a child metric from a child metric")
+                panic!("Cannot get a child metric from a child metric")
             }
         }
     }
@@ -96,7 +96,7 @@ impl CustomDistributionMetric {
             CustomDistributionMetric::Child(_) => {
                 // TODO(bug 1920957): Buffering not implemented for child processes yet. We don't
                 // want to panic though.
-                log::warn!("Can't get a local custom distribution from a child metric. No data will be recorded.");
+                log::warn!("Cannot get a local custom distribution from a child metric. No data will be recorded.");
                 LocalCustomDistribution::Child
             }
         }
@@ -113,7 +113,7 @@ impl LocalCustomDistribution<'_> {
         match self {
             LocalCustomDistribution::Parent(p) => p.accumulate(sample),
             LocalCustomDistribution::Child => {
-                log::debug!("Can't accumulate local custom distribution in a child process.")
+                log::debug!("Cannot accumulate local custom distribution in a child process.")
             }
         }
     }
@@ -225,7 +225,9 @@ mod test {
 
         metric.accumulate_samples_signed(vec![1, 2, 3]);
 
-        assert!(metric.test_get_value(Some("test-ping".to_string())).is_some());
+        assert!(metric
+            .test_get_value(Some("test-ping".to_string()))
+            .is_some());
     }
 
     #[test]

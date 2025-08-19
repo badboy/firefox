@@ -127,11 +127,11 @@ impl glean::traits::Ping for Ping {
             }
             Ping::Child => {
                 log::error!(
-                    "Unable to submit ping in non-main process. This operation will be ignored."
+                    "Unable to submit ping in non-parent process. This operation will be ignored."
                 );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to submit a ping in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to submit a ping in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         };

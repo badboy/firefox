@@ -136,11 +136,11 @@ impl TimespanMetric {
             }
             TimespanMetric::Child => {
                 log::error!(
-                    "Unable to set_raw_unitless on timespan in non-main process. This operation will be ignored."
+                    "Unable to set_raw_unitless on timespan in non-parent process. This operation will be ignored."
                 );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set_raw_unitless on timespan metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set_raw_unitless on timespan metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error. bug 1704504.
             }
         }
@@ -180,10 +180,10 @@ impl Timespan for TimespanMetric {
                 inner.start();
             }
             TimespanMetric::Child => {
-                log::error!("Unable to start timespan metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to start timespan metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.assert!(!crate::ipc::is_in_automation());
-                assert!(!crate::ipc::is_in_automation(), "Attempted to start timespan metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to start timespan metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error. bug 1704504.
             }
         }
@@ -210,10 +210,10 @@ impl Timespan for TimespanMetric {
                 inner.stop();
             }
             TimespanMetric::Child => {
-                log::error!("Unable to stop timespan metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to stop timespan metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.assert!(!crate::ipc::is_in_automation());
-                assert!(!crate::ipc::is_in_automation(), "Attempted to stop timespan metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to stop timespan metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error. bug 1704504.
             }
         }
@@ -240,10 +240,10 @@ impl Timespan for TimespanMetric {
                 inner.cancel();
             }
             TimespanMetric::Child => {
-                log::error!("Unable to cancel timespan metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to cancel timespan metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.assert!(!crate::ipc::is_in_automation());
-                assert!(!crate::ipc::is_in_automation(), "Attempted to cancel timespan metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to cancel timespan metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error. bug 1704504.
             }
         }
@@ -272,10 +272,10 @@ impl Timespan for TimespanMetric {
                 inner.set_raw_nanos(elapsed)
             }
             TimespanMetric::Child => {
-                log::error!("Unable to set_raw on timespan in non-main process. This operation will be ignored.");
+                log::error!("Unable to set_raw on timespan in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.assert!(!crate::ipc::is_in_automation());
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set_raw on timespan metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set_raw on timespan metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error. bug 1704504.
             }
         }
@@ -285,7 +285,7 @@ impl Timespan for TimespanMetric {
         match self {
             TimespanMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             TimespanMetric::Child => {
-                panic!("Cannot get the number of recorded errors for timespan metric in non-main process!");
+                panic!("Cannot get the number of recorded errors for timespan metric in non-parent process!");
             }
         }
     }
@@ -301,7 +301,7 @@ impl glean::TestGetValue<u64> for TimespanMetric {
                 inner.test_get_value(ping_name).map(|i| i as u64)
             }
             TimespanMetric::Child => {
-                panic!("Cannot get test value for in non-main process!");
+                panic!("Cannot get test value for timespan metric in non-parent process!");
             }
         }
     }

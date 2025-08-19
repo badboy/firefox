@@ -130,7 +130,7 @@ impl glean::TestGetValue<DistributionData> for LabeledCustomDistributionMetric {
         match self {
             LabeledCustomDistributionMetric::Parent(p) => p.test_get_value(ping_name),
             LabeledCustomDistributionMetric::Child { id, .. } => {
-                panic!("Cannot get test value for labeled_custom_distribution {:?} in non-parent process!", id)
+                panic!("Cannot get test value for {:?} in non-parent process!", id)
             }
         }
     }

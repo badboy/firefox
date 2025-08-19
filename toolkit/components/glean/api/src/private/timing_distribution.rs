@@ -247,7 +247,7 @@ impl TimingDistributionMetric {
                 instants: RwLock::new(HashMap::new()),
             }),
             TimingDistributionMetric::Child(_) => {
-                panic!("Can't get a child metric from a child metric")
+                panic!("Cannot get a child metric from a child metric")
             }
         }
     }
@@ -300,7 +300,7 @@ impl TimingDistributionMetric {
     pub(crate) fn child_stop(&self, id: TimerId) -> Option<u64> {
         match self {
             TimingDistributionMetric::Parent { .. } => {
-                panic!("Can't child_stop a parent-process timing_distribution")
+                panic!("Cannot child_stop a parent-process timing_distribution")
             }
             TimingDistributionMetric::Child(c) => {
                 let mut map = c
@@ -400,9 +400,12 @@ impl TimingDistributionMetric {
                 inner.accumulate_samples(samples)
             }
             TimingDistributionMetric::Parent { inner, .. } => inner.accumulate_samples(samples),
-            TimingDistributionMetric::Child(_c) => {
+            TimingDistributionMetric::Child(c) => {
                 // TODO: Instrument this error
-                log::error!("Can't record samples for a timing distribution from a child metric");
+                log::error!(
+                    "Cannot record samples for {:?} from a child metric",
+                    c.meta.id
+                );
             }
         }
     }
@@ -434,9 +437,12 @@ impl TimingDistributionMetric {
             TimingDistributionMetric::Parent { inner, .. } => {
                 inner.accumulate_single_sample(sample)
             }
-            TimingDistributionMetric::Child(_c) => {
+            TimingDistributionMetric::Child(c) => {
                 // TODO: Instrument this error
-                log::error!("Can't record samples for a timing distribution from a child metric");
+                log::error!(
+                    "Cannot record samples for {:?} from a child metric",
+                    c.meta.id
+                );
             }
         }
     }
@@ -691,9 +697,12 @@ impl TimingDistribution for TimingDistributionMetric {
             TimingDistributionMetric::Parent { inner, .. } => {
                 inner.accumulate_raw_samples_nanos(samples)
             }
-            TimingDistributionMetric::Child(_c) => {
+            TimingDistributionMetric::Child(c) => {
                 // TODO: Instrument this error
-                log::error!("Can't record samples for a timing distribution from a child metric");
+                log::error!(
+                    "Cannot record samples for {:?} from a child metric",
+                    c.meta.id
+                );
             }
         }
     }
@@ -823,7 +832,10 @@ impl glean::TestGetValue<DistributionData> for TimingDistributionMetric {
         match self {
             TimingDistributionMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
             TimingDistributionMetric::Child(c) => {
-                panic!("Cannot get test value for {:?} in non-parent process!", c)
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    c.meta.id
+                )
             }
         }
     }
@@ -855,7 +867,9 @@ mod test {
         metric.cancel(id);
 
         // We can't inspect the values yet.
-        assert!(metric.test_get_value(Some("test-ping".to_string())).is_none());
+        assert!(metric
+            .test_get_value(Some("test-ping".to_string()))
+            .is_none());
     }
 
     #[test]

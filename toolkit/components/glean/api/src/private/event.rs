@@ -112,7 +112,7 @@ impl<K: 'static + ExtraKeys + Send + Sync + Clone> EventMetric<K> {
             EventMetric::Parent { id, inner } => {
                 EventMetric::Child(ChildMetricMeta::from_metric_identifier(*id, inner))
             }
-            EventMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            EventMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 
@@ -204,7 +204,7 @@ impl<K: 'static + ExtraKeys + Send + Sync + Clone> Event for EventMetric<K> {
         match self {
             EventMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             EventMetric::Child(meta) => panic!(
-                "Cannot get the number of recorded errors for {:?} in non-main process!",
+                "Cannot get the number of recorded errors for {:?} in non-parent process!",
                 meta.id
             ),
         }
@@ -216,8 +216,11 @@ impl<K> glean::TestGetValue<Vec<RecordedEvent>> for EventMetric<K> {
     pub fn test_get_value(&self, ping_name: Option<String>) -> Option<Vec<RecordedEvent>> {
         match self {
             EventMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            EventMetric::Child(_) => {
-                panic!("Cannot get test value for event metric in non-main process!",)
+            EventMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
             }
         }
     }
@@ -246,7 +249,9 @@ mod test {
         // No extra keys
         metric.record(None);
 
-        let recorded = metric.test_get_value(Some("test-ping".to_string())).unwrap();
+        let recorded = metric
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap();
 
         assert!(recorded.iter().any(|e| e.name == "event_metric"));
     }
@@ -286,7 +291,9 @@ mod test {
 
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
 
-        let events = parent_metric.test_get_value(Some("test-ping".to_string())).unwrap();
+        let events = parent_metric
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap();
         assert_eq!(events.len(), 4);
 
         // Events from the child process are last, they might get sorted later by Glean.

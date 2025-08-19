@@ -46,7 +46,7 @@ impl StringListMetric {
             StringListMetric::Parent { id, inner } => {
                 StringListMetric::Child(ChildMetricMeta::from_metric_identifier(*id, inner))
             }
-            StringListMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            StringListMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -120,12 +120,12 @@ impl StringList for StringListMetric {
             }
             StringListMetric::Child(meta) => {
                 log::error!(
-                    "Unable to set string list metric {:?} in non-main process. This operation will be ignored.",
+                    "Unable to set string list metric {:?} in non-parent process. This operation will be ignored.",
                     meta.id
                 );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.assert!(!crate::ipc::is_in_automation());
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set string list metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set string list metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         }
@@ -198,7 +198,9 @@ mod test {
 
         assert_eq!(
             vec!["test_string_value", "another test value"],
-            metric.test_get_value(Some("test-ping".to_string())).unwrap()
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
         );
     }
 
@@ -231,7 +233,9 @@ mod test {
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
         assert_eq!(
             vec!["test_string_value", "another test value"],
-            parent_metric.test_get_value(Some("test-ping".to_string())).unwrap()
+            parent_metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
         );
     }
 }

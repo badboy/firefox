@@ -134,7 +134,7 @@ impl glean::TestGetValue<DistributionData> for LabeledMemoryDistributionMetric {
         match self {
             LabeledMemoryDistributionMetric::Parent(p) => p.test_get_value(ping_name),
             LabeledMemoryDistributionMetric::Child { id, .. } => {
-                panic!("Cannot get test value for labeled_memory_distribution {:?} in non-parent process!", id)
+                panic!("Cannot get test value for {:?} in non-parent process!", id)
             }
         }
     }

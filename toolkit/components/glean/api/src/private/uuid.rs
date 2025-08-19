@@ -48,7 +48,7 @@ impl UuidMetric {
     pub(crate) fn child_metric(&self) -> Self {
         match self {
             UuidMetric::Parent { .. } => UuidMetric::Child(UuidMetricIpc),
-            UuidMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            UuidMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -76,11 +76,11 @@ impl glean::traits::Uuid for UuidMetric {
                 );
                 inner.set(value)
             }
-            UuidMetric::Child(_c) => {
-                log::error!("Unable to set the uuid metric in non-main process. This operation will be ignored.");
+            UuidMetric::Child(_) => {
+                log::error!("Unable to set the uuid metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set uuid metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set uuid metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         };
@@ -91,7 +91,7 @@ impl glean::traits::Uuid for UuidMetric {
     /// ## Return value
     ///
     /// Returns the stored UUID value or `Uuid::nil` if called from
-    /// a non-main process.
+    /// a non-parent process.
     pub fn generate_and_set(&self) -> Uuid {
         match self {
             #[allow(unused)]
@@ -108,11 +108,11 @@ impl glean::traits::Uuid for UuidMetric {
                 );
                 Uuid::parse_str(&uuid).unwrap()
             }
-            UuidMetric::Child(_c) => {
-                log::error!("Unable to set the uuid metric in non-main process. This operation will be ignored.");
+            UuidMetric::Child(_) => {
+                log::error!("Unable to set the uuid metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set uuid metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set uuid metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
                 Uuid::nil()
             }
@@ -135,8 +135,8 @@ impl glean::traits::Uuid for UuidMetric {
     pub fn test_get_num_recorded_errors(&self, error: glean::ErrorType) -> i32 {
         match self {
             UuidMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
-            UuidMetric::Child(_c) => {
-                panic!("Cannot get test value for UuidMetric in non-main process!")
+            UuidMetric::Child(_) => {
+                panic!("Cannot get test value for uuid metric in non-parent process!")
             }
         }
     }
@@ -161,7 +161,9 @@ impl glean::TestGetValue<Uuid> for UuidMetric {
             UuidMetric::Parent { inner, .. } => inner
                 .test_get_value(ping_name)
                 .and_then(|s| Uuid::parse_str(&s).ok()),
-            UuidMetric::Child(_c) => panic!("Cannot get test value for in non-main process!"),
+            UuidMetric::Child(_) => {
+                panic!("Cannot get test value for uuid metric in non-parent process!")
+            }
         }
     }
 }
@@ -179,7 +181,12 @@ mod test {
         let expected = Uuid::new_v4();
         metric.set(expected.clone());
 
-        assert_eq!(expected, metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert_eq!(
+            expected,
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
+        );
     }
 
     #[test]
@@ -205,7 +212,9 @@ mod test {
 
         assert_eq!(
             expected,
-            parent_metric.test_get_value(Some("test-ping".to_string())).unwrap(),
+            parent_metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap(),
             "UUID metrics should only work in the parent process"
         );
     }

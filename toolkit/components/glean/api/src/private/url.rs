@@ -93,7 +93,7 @@ impl UrlMetric {
     pub(crate) fn child_metric(&self) -> Self {
         match self {
             UrlMetric::Parent { .. } => UrlMetric::Child(UrlMetricIpc),
-            UrlMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            UrlMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -118,11 +118,11 @@ impl glean::traits::Url for UrlMetric {
             }
             UrlMetric::Child(_) => {
                 log::error!(
-                    "Unable to set Url metric in non-main process. This operation will be ignored."
+                    "Unable to set Url metric in non-parent process. This operation will be ignored."
                 );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set URL metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set URL metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         };
@@ -132,7 +132,7 @@ impl glean::traits::Url for UrlMetric {
         match self {
             UrlMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             UrlMetric::Child(_) => panic!(
-                "Cannot get the number of recorded errors for Url metric in non-main process!"
+                "Cannot get the number of recorded errors for Url metric in non-parent process!"
             ),
         }
     }
@@ -144,7 +144,7 @@ impl glean::TestGetValue<std::string::String> for UrlMetric {
         match self {
             UrlMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
             UrlMetric::Child(_) => {
-                panic!("Cannot get test value for Url metric in non-main process!")
+                panic!("Cannot get test value for url metric in non-parent process!")
             }
         }
     }
@@ -164,7 +164,9 @@ mod test {
 
         assert_eq!(
             "https://example.com",
-            metric.test_get_value(Some("test-ping".to_string())).unwrap()
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
         );
     }
 
@@ -192,7 +194,10 @@ mod test {
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
 
         assert!(
-            "https://example.com/parent" == parent_metric.test_get_value(Some("test-ping".to_string())).unwrap(),
+            "https://example.com/parent"
+                == parent_metric
+                    .test_get_value(Some("test-ping".to_string()))
+                    .unwrap(),
             "Url metrics should only work in the parent process"
         );
     }

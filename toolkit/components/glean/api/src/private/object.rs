@@ -123,7 +123,7 @@ impl<K: ObjectSerialize + Clone> ObjectMetric<K> {
                 inner.set(value);
             }
             ObjectMetric::Child => {
-                log::error!("Unable to set object metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to set object metric in non-parent process. This operation will be ignored.");
                 // TODO: Record an error.
             }
         };
@@ -145,7 +145,7 @@ impl<K: ObjectSerialize + Clone> ObjectMetric<K> {
                 inner.set_string(value);
             }
             ObjectMetric::Child => {
-                log::error!("Unable to set object metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to set object metric in non-parent process. This operation will be ignored.");
                 // TODO: Record an error.
             }
         };

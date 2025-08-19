@@ -115,7 +115,7 @@ impl DatetimeMetric {
             DatetimeMetric::Parent { id, inner } => {
                 DatetimeMetric::Child(ChildMetricMeta::from_metric_identifier(*id, inner))
             }
-            DatetimeMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            DatetimeMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 
@@ -199,11 +199,14 @@ impl DatetimeMetric {
                     }
                 }
             }
-            DatetimeMetric::Child(_) => {
-                log::error!("Unable to set datetime metric in non-main process. This operation will be ignored.");
+            DatetimeMetric::Child(meta) => {
+                log::error!(
+                    "Unable to set {:?} in non-parent process. This operation will be ignored.",
+                    meta.id
+                );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set datetime in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set datetime in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         }
@@ -259,13 +262,14 @@ impl Datetime for DatetimeMetric {
                 }
                 inner.set(value);
             }
-            DatetimeMetric::Child(_) => {
+            DatetimeMetric::Child(meta) => {
                 log::error!(
-                    "Unable to set datetime metric DatetimeMetric in non-main process. This operation will be ignored."
+                    "Unable to set {:?} in non-parent process. This operation will be ignored.",
+                    meta.id
                 );
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set datetime metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set datetime metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         }
@@ -288,7 +292,7 @@ impl Datetime for DatetimeMetric {
         match self {
             DatetimeMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             DatetimeMetric::Child(_) => panic!(
-                "Cannot get the number of recorded errors for DatetimeMetric in non-main process!"
+                "Cannot get the number of recorded errors for DatetimeMetric in non-parent process!"
             ),
         }
     }
@@ -311,8 +315,11 @@ impl glean::TestGetValue<glean::Datetime> for DatetimeMetric {
     pub fn test_get_value(&self, ping_name: Option<String>) -> Option<glean::Datetime> {
         match self {
             DatetimeMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
-            DatetimeMetric::Child(_) => {
-                panic!("Cannot get test value for DatetimeMetric in non-main process!")
+            DatetimeMetric::Child(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
             }
         }
     }
@@ -339,7 +346,12 @@ mod test {
         let expected: glean::Datetime = DateTime::parse_from_rfc3339("2020-05-07T11:58:00+05:00")
             .unwrap()
             .into();
-        assert_eq!(expected, metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert_eq!(
+            expected,
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
+        );
     }
 
     #[test]
@@ -353,7 +365,12 @@ mod test {
         let expected: glean::Datetime = DateTime::parse_from_rfc3339("2020-05-07T11:58:00+05:00")
             .unwrap()
             .into();
-        assert_eq!(expected, metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert_eq!(
+            expected,
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
+        );
     }
 
     #[test]
@@ -387,6 +404,11 @@ mod test {
         let expected: glean::Datetime = DateTime::parse_from_rfc3339("2020-10-13T16:41:00+05:00")
             .unwrap()
             .into();
-        assert_eq!(expected, parent_metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert_eq!(
+            expected,
+            parent_metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
+        );
     }
 }

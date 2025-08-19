@@ -49,7 +49,7 @@ impl QuantityMetric {
     pub(crate) fn child_metric(&self) -> Self {
         match self {
             QuantityMetric::Parent { .. } => QuantityMetric::Child(QuantityMetricIpc),
-            QuantityMetric::Child(_) => panic!("Can't get a child metric from a child metric"),
+            QuantityMetric::Child(_) => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -83,10 +83,10 @@ impl Quantity for QuantityMetric {
                 inner.set(value);
             }
             QuantityMetric::Child(_) => {
-                log::error!("Unable to set quantity metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to set quantity metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set quantity metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set quantity metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
         }
@@ -109,7 +109,7 @@ impl Quantity for QuantityMetric {
         match self {
             QuantityMetric::Parent { inner, .. } => inner.test_get_num_recorded_errors(error),
             QuantityMetric::Child(_) => panic!(
-                "Cannot get the number of recorded errors for quantity metric in non-main process!"
+                "Cannot get the number of recorded errors for quantity metric in non-parent process!"
             ),
         }
     }
@@ -133,7 +133,7 @@ impl glean::TestGetValue<i64> for QuantityMetric {
         match self {
             QuantityMetric::Parent { inner, .. } => inner.test_get_value(ping_name),
             QuantityMetric::Child(_) => {
-                panic!("Cannot get test value for quantity metric in non-main process!",)
+                panic!("Cannot get test value for quantity metric in non-parent process!")
             }
         }
     }
@@ -150,7 +150,12 @@ mod test {
         let metric = &metrics::test_only_ipc::a_quantity;
         metric.set(14);
 
-        assert_eq!(14, metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert_eq!(
+            14,
+            metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap()
+        );
     }
 
     #[test]

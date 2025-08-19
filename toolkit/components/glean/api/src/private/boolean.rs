@@ -53,7 +53,7 @@ impl BooleanMetric {
         match self {
             BooleanMetric::Parent { id, .. } => *id,
             BooleanMetric::UnorderedChild(meta) => (meta.id).into(),
-            _ => panic!("Can't get a metric_id from a non-ipc-supporting child boolean metric."),
+            _ => panic!("Cannot get a metric_id from a non-ipc-supporting child boolean metric."),
         }
     }
 
@@ -70,7 +70,7 @@ impl BooleanMetric {
                     inner.as_ref(),
                 ))
             }
-            _ => panic!("Can't get a child metric from a child metric"),
+            _ => panic!("Cannot get a child metric from a child metric"),
         }
     }
 }
@@ -98,10 +98,10 @@ impl Boolean for BooleanMetric {
                 inner.set(value);
             }
             BooleanMetric::Child(_) => {
-                log::error!("Unable to set boolean metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to set boolean metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set boolean metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set boolean metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
             BooleanMetric::UnorderedChild(meta) => {
@@ -143,8 +143,9 @@ impl Boolean for BooleanMetric {
     pub fn test_get_num_recorded_errors(&self, error: glean::ErrorType) -> i32 {
         match self {
             BooleanMetric::Parent { id: _, inner } => inner.test_get_num_recorded_errors(error),
-            _ => panic!(
-                "Cannot get the number of recorded errors for boolean metric in non-main process!"
+            BooleanMetric::Child(meta) | BooleanMetric::UnorderedChild(meta) => panic!(
+                "Cannot get the number of recorded errors for {:?} in non-parent process!",
+                meta.id
             ),
         }
     }
@@ -167,8 +168,11 @@ impl glean::TestGetValue<bool> for BooleanMetric {
     pub fn test_get_value(&self, ping_name: Option<String>) -> Option<bool> {
         match self {
             BooleanMetric::Parent { id: _, inner } => inner.test_get_value(ping_name),
-            _ => {
-                panic!("Cannot get test value for boolean metric in non-main process!",)
+            BooleanMetric::Child(meta) | BooleanMetric::UnorderedChild(meta) => {
+                panic!(
+                    "Cannot get test value for {:?} in non-parent process!",
+                    meta.id
+                )
             }
         }
     }
@@ -195,7 +199,9 @@ mod test {
         let metric = &metrics::test_only_ipc::a_bool;
         metric.set(true);
 
-        assert!(metric.test_get_value(Some("test-ping".to_string())).unwrap());
+        assert!(metric
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap());
     }
 
     #[test]
@@ -223,7 +229,10 @@ mod test {
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
 
         assert!(
-            false == parent_metric.test_get_value(Some("test-ping".to_string())).unwrap(),
+            false
+                == parent_metric
+                    .test_get_value(Some("test-ping".to_string()))
+                    .unwrap(),
             "Boolean metrics should only work in the parent process"
         );
     }
@@ -249,7 +258,9 @@ mod test {
         assert!(ipc::replay_from_buf(&ipc::take_buf().unwrap()).is_ok());
 
         assert!(
-            !parent_metric.test_get_value(Some("test-ping".to_string())).unwrap(),
+            !parent_metric
+                .test_get_value(Some("test-ping".to_string()))
+                .unwrap(),
             "Boolean metrics can unsafely work in child processes"
         );
     }

@@ -40,7 +40,7 @@ impl LabeledBooleanMetric {
         match self {
             LabeledBooleanMetric::Parent(p) => p.metric_id(),
             LabeledBooleanMetric::UnorderedChild { id, .. } => (*id).into(),
-            _ => panic!("Can't get metric_id from child labeled_boolean in tests."),
+            _ => panic!("Cannot get metric_id from child labeled_boolean in tests."),
         }
     }
 }
@@ -51,10 +51,10 @@ impl Boolean for LabeledBooleanMetric {
         match self {
             LabeledBooleanMetric::Parent(p) => p.set(value),
             LabeledBooleanMetric::Child => {
-                log::error!("Unable to set boolean metric in non-main process. This operation will be ignored.");
+                log::error!("Unable to set boolean metric in non-parent process. This operation will be ignored.");
                 // If we're in automation we can panic so the instrumentor knows they've gone wrong.
                 // This is a deliberate violation of Glean's "metric APIs must not throw" design.
-                assert!(!crate::ipc::is_in_automation(), "Attempted to set boolean metric in non-main process, which is forbidden. This panics in automation.");
+                assert!(!crate::ipc::is_in_automation(), "Attempted to set boolean metric in non-parent process, which is forbidden. This panics in automation.");
                 // TODO: Record an error.
             }
             LabeledBooleanMetric::UnorderedChild { id, label } => {
@@ -90,7 +90,7 @@ impl Boolean for LabeledBooleanMetric {
         match self {
             LabeledBooleanMetric::Parent(p) => p.test_get_num_recorded_errors(error),
             _ => panic!(
-                "Cannot get the number of recorded errors for a labeled_boolean in non-parent process!"
+                "Cannot get the number of recorded errors for labeled boolean metric in non-parent process!"
             ),
         }
     }
@@ -102,7 +102,7 @@ impl glean::TestGetValue<bool> for LabeledBooleanMetric {
         match self {
             LabeledBooleanMetric::Parent(p) => p.test_get_value(ping_name),
             _ => {
-                panic!("Cannot get test value for a labeled_boolean in non-parent process!")
+                panic!("Cannot get test value for labeled boolean metric in non-parent process!")
             }
         }
     }
@@ -134,7 +134,10 @@ mod test {
         let metric = &metrics::test_only_ipc::an_unordered_labeled_boolean;
         metric.get("a_label").set(true);
 
-        assert!(metric.get("a_label").test_get_value(Some("test-ping".to_string())).unwrap());
+        assert!(metric
+            .get("a_label")
+            .test_get_value(Some("test-ping".to_string()))
+            .unwrap());
     }
 
     #[test]

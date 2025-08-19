@@ -91,7 +91,7 @@ impl DualLabeledCounterMetric {
                 let inner = match self {
                     DualLabeledCounterMetric::Parent { inner, .. } => inner,
                     DualLabeledCounterMetric::Child(_) => {
-                        panic!("Can't create parent submetric in child metric")
+                        panic!("Cannot create parent submetric in child metric")
                     }
                 };
                 DualLabeledCounterSubMetric::Parent(CounterMetric::Parent {
