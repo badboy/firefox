@@ -28,6 +28,7 @@ extern crate data_storage;
 extern crate dom_fragmentdirectives;
 extern crate encoding_glue;
 extern crate fog_control;
+extern crate enterprise_uploader;
 extern crate gecko_profiler;
 extern crate gkrust_utils;
 extern crate http_sfv;

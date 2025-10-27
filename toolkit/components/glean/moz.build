@@ -291,6 +291,7 @@ if CONFIG["MOZ_GLEAN_INTERESTING_METRICS_FILES"]:
 DIRS += [
     "tests",  # Must be in DIRS, not TEST_DIRS or python-test won't find it.
     "xpcom",
+    "enterprise-uploader",
 ]
 
 with Files("docs/**"):

@@ -19,6 +19,7 @@ members = [
   "security/mls/mls_gk",
   "testing/geckodriver",
   "toolkit/components/uniffi-bindgen-gecko-js",
+  "toolkit/components/glean/enterprise-uploader",
   "toolkit/crashreporter/client/app",
   "toolkit/crashreporter/crash_helper_server",
   "toolkit/crashreporter/crash_helper_client",
