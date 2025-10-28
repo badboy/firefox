@@ -1,21 +1,21 @@
-use std::ptr;
 use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use libc::c_void;
 use nserror::{nsresult, NS_OK};
-use xpcom::{interfaces::nsISupports, xpcom, xpcom_method, RefPtr, nsIID};
+use xpcom::interfaces::nsIEnterpriseUploader;
+use xpcom::{xpcom, xpcom_method, RefPtr};
 
 static FLIP_FLOP: OnceLock<AtomicBool> = OnceLock::new();
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn nsEnterpriseUploaderConstructor(iid: &nsIID, result: *mut *mut c_void) -> nsresult {
-    *result = ptr::null_mut();
+#[expect(clippy::missing_safety_doc, reason = "Inherently unsafe.")]
+pub unsafe extern "C" fn new_enterprise_uploader_service(result: *mut *const nsIEnterpriseUploader) {
+    _ = FLIP_FLOP.set(AtomicBool::new(false));
 
-    FLIP_FLOP.set(AtomicBool::new(false));
-
-    let service = EnterpriseUploader::new();
-    service.QueryInterface(iid, result)
+    unsafe {
+        let service: RefPtr<EnterpriseUploader> = EnterpriseUploader::new();
+        RefPtr::new(service.coerce::<nsIEnterpriseUploader>()).forget(&mut *result);
+    }
 }
 
 #[xpcom(implement(nsIEnterpriseUploader), atomic)]

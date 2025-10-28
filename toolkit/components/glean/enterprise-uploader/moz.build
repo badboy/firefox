@@ -12,9 +12,9 @@ XPCOM_MANIFESTS += [
     "components.conf",
 ]
 
-EXPORTS.mozilla.glean += [
-    "nsEnterpriseUploader.h",
-]
+EXPORTS.mozilla.glean += ["nsEnterpriseUploader.h"]
+
+SOURCES += ["nsEnterpriseUploader.cpp"]
 
 XPIDL_MODULE = "enterpriseuploader"
 
