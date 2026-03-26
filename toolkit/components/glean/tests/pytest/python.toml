@@ -11,6 +11,8 @@ subsuite = "fog"
 
 ["test_jogfile_output.py"]
 
+["test_no_duplicated_files.py"]
+
 ["test_no_expired_metrics.py"]
 
 ["test_yaml_indices.py"]
