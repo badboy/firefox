@@ -38,7 +38,7 @@ export var UnitTestObjs = {
 export function allowAndroidEmulatorLoopback() {
    
 const result = UniFFIScaffolding.callSync(
-    226, // uniffi_viaduct_fn_func_allow_android_emulator_loopback
+    15, // uniffi_viaduct_fn_func_allow_android_emulator_loopback
 )
 return handleRustResult(
     result,
@@ -53,7 +53,7 @@ return handleRustResult(
 export function clearOhttpChannels() {
    
 const result = UniFFIScaffolding.callSync(
-    227, // uniffi_viaduct_fn_func_clear_ohttp_channels
+    16, // uniffi_viaduct_fn_func_clear_ohttp_channels
 )
 return handleRustResult(
     result,
@@ -71,7 +71,7 @@ return handleRustResult(
 export function configureDefaultOhttpChannels() {
    
 const result = UniFFIScaffolding.callSync(
-    228, // uniffi_viaduct_fn_func_configure_default_ohttp_channels
+    17, // uniffi_viaduct_fn_func_configure_default_ohttp_channels
 )
 return handleRustResult(
     result,
@@ -93,7 +93,7 @@ export function configureOhttpChannel(
 FfiConverterString.checkType(channel);
 FfiConverterTypeOhttpConfig.checkType(config);
 const result = UniFFIScaffolding.callSync(
-    229, // uniffi_viaduct_fn_func_configure_ohttp_channel
+    18, // uniffi_viaduct_fn_func_configure_ohttp_channel
     FfiConverterString.lower(channel),
     FfiConverterTypeOhttpConfig.lower(config),
 )
@@ -113,7 +113,7 @@ export function initBackend(
    
 FfiConverterTypeBackend.checkType(backend);
 const result = UniFFIScaffolding.callSync(
-    230, // uniffi_viaduct_fn_func_init_backend
+    19, // uniffi_viaduct_fn_func_init_backend
     FfiConverterTypeBackend.lower(backend),
 )
 return handleRustResult(
@@ -130,7 +130,7 @@ return handleRustResult(
 export function listOhttpChannels() {
    
 const result = UniFFIScaffolding.callSync(
-    231, // uniffi_viaduct_fn_func_list_ohttp_channels
+    20, // uniffi_viaduct_fn_func_list_ohttp_channels
 )
 return handleRustResult(
     result,
@@ -172,7 +172,7 @@ export async function sendOhttpRequest(
 FfiConverterTypeRequest.checkType(request);
 FfiConverterString.checkType(channel);
 const result = await UniFFIScaffolding.callAsync(
-    232, // uniffi_viaduct_fn_func_send_ohttp_request
+    21, // uniffi_viaduct_fn_func_send_ohttp_request
     FfiConverterTypeRequest.lower(request),
     FfiConverterString.lower(channel),
 )
@@ -195,7 +195,7 @@ export function setGlobalDefaultUserAgent(
    
 FfiConverterString.checkType(userAgent);
 const result = UniFFIScaffolding.callSync(
-    233, // uniffi_viaduct_fn_func_set_global_default_user_agent
+    22, // uniffi_viaduct_fn_func_set_global_default_user_agent
     FfiConverterString.lower(userAgent),
 )
 return handleRustResult(
@@ -204,6 +204,7 @@ return handleRustResult(
     null,
 )
 }
+
 
 
 
@@ -1092,12 +1093,12 @@ export class ViaductError extends Error {}
 export class RequestHeaderError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `RequestHeaderError: ${super.toString()}`
@@ -1110,12 +1111,12 @@ export class RequestHeaderError extends ViaductError {
 export class BackendError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `BackendError: ${super.toString()}`
@@ -1128,12 +1129,12 @@ export class BackendError extends ViaductError {
 export class NetworkError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `NetworkError: ${super.toString()}`
@@ -1192,12 +1193,12 @@ export class SetBackendError extends ViaductError {
 export class UrlError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `UrlError: ${super.toString()}`
@@ -1225,12 +1226,12 @@ export class NonTlsUrl extends ViaductError {
 export class OhttpChannelNotConfigured extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `OhttpChannelNotConfigured: ${super.toString()}`
@@ -1243,12 +1244,12 @@ export class OhttpChannelNotConfigured extends ViaductError {
 export class OhttpConfigFetchFailed extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `OhttpConfigFetchFailed: ${super.toString()}`
@@ -1261,12 +1262,12 @@ export class OhttpConfigFetchFailed extends ViaductError {
 export class OhttpRequestError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `OhttpRequestError: ${super.toString()}`
@@ -1279,12 +1280,12 @@ export class OhttpRequestError extends ViaductError {
 export class OhttpResponseError extends ViaductError {
 
     constructor(
-        v0,
+        ,
         ...params
     ) {
-        const message = `v0: ${ v0 }`;
+        const message = `: ${  }`;
         super(message, ...params);
-        this.v0 = v0;
+        this. = ;
     }
     toString() {
         return `OhttpResponseError: ${super.toString()}`
@@ -1365,15 +1366,15 @@ export class FfiConverterTypeViaductError extends FfiConverterArrayBuffer {
         // Size of the Int indicating the variant
         let totalSize = 4;
         if (value instanceof RequestHeaderError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof BackendError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof NetworkError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof BackendAlreadyInitialized) {
@@ -1386,26 +1387,26 @@ export class FfiConverterTypeViaductError extends FfiConverterArrayBuffer {
             return totalSize;
         }
         if (value instanceof UrlError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof NonTlsUrl) {
             return totalSize;
         }
         if (value instanceof OhttpChannelNotConfigured) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof OhttpConfigFetchFailed) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof OhttpRequestError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof OhttpResponseError) {
-            totalSize += FfiConverterString.computeSize(value.v0);
+            totalSize += FfiConverterString.computeSize(value.);
             return totalSize;
         }
         if (value instanceof OhttpNotSupported) {
@@ -1416,17 +1417,17 @@ export class FfiConverterTypeViaductError extends FfiConverterArrayBuffer {
     static write(dataStream, value) {
         if (value instanceof RequestHeaderError) {
             dataStream.writeInt32(1);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof BackendError) {
             dataStream.writeInt32(2);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof NetworkError) {
             dataStream.writeInt32(3);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof BackendAlreadyInitialized) {
@@ -1443,7 +1444,7 @@ export class FfiConverterTypeViaductError extends FfiConverterArrayBuffer {
         }
         if (value instanceof UrlError) {
             dataStream.writeInt32(7);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof NonTlsUrl) {
@@ -1452,22 +1453,22 @@ export class FfiConverterTypeViaductError extends FfiConverterArrayBuffer {
         }
         if (value instanceof OhttpChannelNotConfigured) {
             dataStream.writeInt32(9);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof OhttpConfigFetchFailed) {
             dataStream.writeInt32(10);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof OhttpRequestError) {
             dataStream.writeInt32(11);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof OhttpResponseError) {
             dataStream.writeInt32(12);
-            FfiConverterString.write(dataStream, value.v0);
+            FfiConverterString.write(dataStream, value.);
             return;
         }
         if (value instanceof OhttpNotSupported) {
@@ -1529,7 +1530,7 @@ export class BackendImpl extends Backend {
         FfiConverterTypeRequest.checkType(request);
         FfiConverterTypeClientSettings.checkType(settings);
         const result = await UniFFIScaffolding.callAsync(
-            234, // uniffi_viaduct_fn_method_backend_send_request
+            233, // uniffi_viaduct_fn_method_backend_send_request
             FfiConverterTypeBackend.lowerReceiver(this),
             FfiConverterTypeRequest.lower(request),
             FfiConverterTypeClientSettings.lower(settings),
@@ -1556,7 +1557,7 @@ export class FfiConverterTypeBackend extends FfiConverter {
           return new BackendImpl(opts);
         } else {
           // JS handle.  Get the JS object from the callback handler
-          return uniffiCallbackHandlerViaductBackend.takeCallbackObj(handle)
+          return uniffiCallbackHandlerBackend.takeCallbackObj(handle)
         }
     }
 
@@ -1570,11 +1571,11 @@ export class FfiConverterTypeBackend extends FfiConverter {
           if (!(value instanceof Backend)) {
               throw new UniFFITypeError("expected 'Backend' subclass");
           }
-          return uniffiCallbackHandlerViaductBackend.storeCallbackObj(value)
+          return uniffiCallbackHandlerBackend.storeCallbackObj(value)
         }
     }
 
-    // lowerReceiver is used when calling methods on an interface we got from Rust, 
+    // lowerReceiver is used when calling methods on an interface we got from Rust,
     // it treats value like a regular interface.
     static lowerReceiver(value) {
         const ptr = value[uniffiObjectPtr];
@@ -1585,13 +1586,13 @@ export class FfiConverterTypeBackend extends FfiConverter {
     }
 
     static read(dataStream) {
-        return this.lift(dataStream.readHandleOrPointer(26))
+        return this.lift(dataStream.readHandleOrPointer(25))
     }
 
     static write(dataStream, value) {
         if (value[uniffiObjectPtr] instanceof UniFFIPointer) {
           // Rust-implemented interface, return the ptr.
-          dataStream.writePointer(26, this.lower(value));
+          dataStream.writePointer(25, this.lower(value));
         } else {
           dataStream.writeInt64(this.lower(value))
         }
@@ -1602,9 +1603,9 @@ export class FfiConverterTypeBackend extends FfiConverter {
     }
 }
 
-const uniffiCallbackHandlerViaductBackend = new UniFFICallbackHandler(
+const uniffiCallbackHandlerBackend = new UniFFICallbackHandler(
     "Backend",
-    8,
+    7,
     [
         new UniFFICallbackMethodHandler(
             "sendRequest",
@@ -1624,7 +1625,7 @@ const uniffiCallbackHandlerViaductBackend = new UniFFICallbackHandler(
 );
 
 // Allow the shutdown-related functionality to be tested in the unit tests
-UnitTestObjs.uniffiCallbackHandlerViaductBackend = uniffiCallbackHandlerViaductBackend;
+UnitTestObjs.uniffiCallbackHandlerBackend = uniffiCallbackHandlerBackend;
 // Export the FFIConverter object to make external types work.
 export class FfiConverterSequenceString extends FfiConverterArrayBuffer {
     static read(dataStream) {

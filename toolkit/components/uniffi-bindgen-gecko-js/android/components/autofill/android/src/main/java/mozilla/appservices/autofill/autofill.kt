@@ -99,6 +99,43 @@ internal open class ForeignBytes : Structure() {
 
     class ByValue : ForeignBytes(), Structure.ByValue
 }
+
+// Converter for `&[u8]` / `[ByRef] bytes` arguments.
+//
+// Only `lower` is valid — zero-copy byte buffers only flow foreign -> Rust,
+// and only in argument position. `lift`, `read`, `write`, and
+// `allocationSize` have no sound implementation here and all panic at
+// runtime. The `FfiConverter` interface is implemented so that the
+// compiler enforces the full method set (rather than relying on eyeball).
+//
+// The provided `ByteBuffer` MUST be direct — only direct buffers have a
+// stable native address that JNA can expose via `getDirectBufferPointer`.
+// The returned `ForeignBytes.ByValue` is only valid for the duration of
+// the FFI call; the Rust side treats it as a borrow.
+internal object FfiConverterByRefBytes : FfiConverter<java.nio.ByteBuffer, ForeignBytes.ByValue> {
+    override fun lower(value: java.nio.ByteBuffer): ForeignBytes.ByValue {
+        require(value.isDirect) { "UniFFI zero-copy &[u8] requires a direct ByteBuffer. Use ByteBuffer.allocateDirect()." }
+        val remaining = value.remaining()
+        val fb = ForeignBytes.ByValue()
+        fb.len = remaining
+        // Zero-length direct buffers: skip getDirectBufferPointer (platform-variable behavior)
+        // and pass null. The Rust side treats (null, 0) as &[].
+        fb.data = if (remaining == 0) null else com.sun.jna.Native.getDirectBufferPointer(value)
+        return fb
+    }
+
+    override fun lift(value: ForeignBytes.ByValue): java.nio.ByteBuffer =
+        error("ByRef bytes cannot be lifted: zero-copy &[u8] only flows foreign->Rust")
+
+    override fun read(buf: java.nio.ByteBuffer): java.nio.ByteBuffer =
+        error("ByRef bytes cannot be read from a buffer: zero-copy &[u8] is only supported in argument position, not nested in records/options/etc.")
+
+    override fun write(value: java.nio.ByteBuffer, buf: java.nio.ByteBuffer): Unit =
+        error("ByRef bytes cannot be written to a buffer: zero-copy &[u8] is only supported in argument position, not nested in records/options/etc.")
+
+    override fun allocationSize(value: java.nio.ByteBuffer): ULong =
+        error("ByRef bytes have no RustBuffer allocation size: zero-copy &[u8] is only supported in argument position, not nested in records/options/etc.")
+}
 /**
  * The FfiConverter interface handles converter types to and from the FFI
  *
@@ -636,99 +673,99 @@ internal object IntegrityCheckingUniffiLib {
         uniffiCheckContractApiVersion(this)
     }
     external fun uniffi_autofill_checksum_func_create_autofill_key(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_func_decrypt_string(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_func_encrypt_string(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_apply(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_ensure_current_sync_id(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_last_sync(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_reset(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_reset_sync_id(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_set_uploaded(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_store_incoming(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_sync_finished(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_sync_id(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_sync_started(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_addressesbridgedengine_wipe(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_address(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_address_with_meta(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_credit_card(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_many_address_tombstones(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_many_addresses_with_meta(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_add_passport(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_addresses_bridged_engine(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_count_all_addresses(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_count_all_credit_cards(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_count_all_passports(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_delete_address(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_delete_all_addresses(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_delete_credit_card(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_delete_passport(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_address(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_all_addresses(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_all_credit_cards(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_all_passports(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_credit_card(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_get_passport(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_register_with_sync_manager(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_run_maintenance(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_scrub_encrypted_data(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_scrub_undecryptable_credit_card_data_for_remote_replacement(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_shutdown(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_touch_address(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_touch_credit_card(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_touch_passport(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_update_address(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_update_address_with_meta(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_update_credit_card(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_method_store_update_passport(
-    ): Short
+    ): Int
     external fun uniffi_autofill_checksum_constructor_store_new(
-    ): Short
+    ): Int
     external fun ffi_autofill_uniffi_contract_version(
     ): Int
 
@@ -748,213 +785,213 @@ internal object UniffiLib {
         
     }
     external fun uniffi_autofill_fn_clone_addressesbridgedengine(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_free_addressesbridgedengine(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_apply(`ptr`: Long,`serverModifiedMillis`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_addressesbridgedengine_ensure_current_sync_id(`ptr`: Long,`newSyncId`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_addressesbridgedengine_last_sync(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_addressesbridgedengine_reset(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_reset_sync_id(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_addressesbridgedengine_set_uploaded(`ptr`: Long,`newTimestamp`: Long,`uploadedIds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_store_incoming(`ptr`: Long,`incomingEnvelopesAsJson`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_finished(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_id(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_started(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_addressesbridgedengine_wipe(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_clone_store(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_free_store(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_constructor_store_new(`dbpath`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_store_add_address(`ptr`: Long,`a`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_add_address_with_meta(`ptr`: Long,`entryWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_add_credit_card(`ptr`: Long,`cc`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_add_many_address_tombstones(`ptr`: Long,`tombstones`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_add_many_addresses_with_meta(`ptr`: Long,`entriesWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_add_passport(`ptr`: Long,`p`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_addresses_bridged_engine(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_store_count_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_store_count_all_credit_cards(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_store_count_all_passports(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun uniffi_autofill_fn_method_store_delete_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Byte
-external fun uniffi_autofill_fn_method_store_delete_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_delete_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Byte
-external fun uniffi_autofill_fn_method_store_delete_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Byte
-external fun uniffi_autofill_fn_method_store_get_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_get_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_get_all_credit_cards(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_get_all_passports(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_get_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_get_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_register_with_sync_manager(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_run_maintenance(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_scrub_encrypted_data(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_scrub_undecryptable_credit_card_data_for_remote_replacement(`ptr`: Long,`localEncryptionKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_method_store_shutdown(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_touch_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_touch_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_touch_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_update_address(`ptr`: Long,`guid`: RustBuffer.ByValue,`a`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_update_address_with_meta(`ptr`: Long,`entryWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_update_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,`cc`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_method_store_update_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,`p`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun uniffi_autofill_fn_func_create_autofill_key(uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_func_decrypt_string(`key`: RustBuffer.ByValue,`ciphertext`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun uniffi_autofill_fn_func_encrypt_string(`key`: RustBuffer.ByValue,`cleartext`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun ffi_autofill_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun ffi_autofill_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun ffi_autofill_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
-external fun ffi_autofill_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun ffi_autofill_rust_future_poll_u8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_u8(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_u8(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Byte
-external fun ffi_autofill_rust_future_poll_i8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_i8(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_i8(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Byte
-external fun ffi_autofill_rust_future_poll_u16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_u16(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_u16(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Short
-external fun ffi_autofill_rust_future_poll_i16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_i16(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_i16(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Short
-external fun ffi_autofill_rust_future_poll_u32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_u32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_u32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Int
-external fun ffi_autofill_rust_future_poll_i32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_i32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_i32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Int
-external fun ffi_autofill_rust_future_poll_u64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_u64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_u64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun ffi_autofill_rust_future_poll_i64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_i64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_i64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Long
-external fun ffi_autofill_rust_future_poll_f32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_f32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_f32(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Float
-external fun ffi_autofill_rust_future_poll_f64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_f64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_f64(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Double
-external fun ffi_autofill_rust_future_poll_rust_buffer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_rust_buffer(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_rust_buffer(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): RustBuffer.ByValue
-external fun ffi_autofill_rust_future_poll_void(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
-): Unit
-external fun ffi_autofill_rust_future_cancel_void(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_free_void(`handle`: Long,
-): Unit
-external fun ffi_autofill_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
-): Unit
+    ): Long
+    external fun uniffi_autofill_fn_free_addressesbridgedengine(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_apply(`ptr`: Long,`serverModifiedMillis`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_ensure_current_sync_id(`ptr`: Long,`newSyncId`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_last_sync(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_reset(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_reset_sync_id(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_set_uploaded(`ptr`: Long,`newTimestamp`: Long,`uploadedIds`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_store_incoming(`ptr`: Long,`incomingEnvelopesAsJson`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_finished(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_id(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_sync_started(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_addressesbridgedengine_wipe(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_clone_store(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_free_store(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_constructor_store_new(`dbpath`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_store_add_address(`ptr`: Long,`a`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_add_address_with_meta(`ptr`: Long,`entryWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_add_credit_card(`ptr`: Long,`cc`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_add_many_address_tombstones(`ptr`: Long,`tombstones`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_add_many_addresses_with_meta(`ptr`: Long,`entriesWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_add_passport(`ptr`: Long,`p`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_addresses_bridged_engine(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_store_count_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_store_count_all_credit_cards(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_store_count_all_passports(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun uniffi_autofill_fn_method_store_delete_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    external fun uniffi_autofill_fn_method_store_delete_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_delete_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    external fun uniffi_autofill_fn_method_store_delete_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    external fun uniffi_autofill_fn_method_store_get_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_get_all_addresses(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_get_all_credit_cards(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_get_all_passports(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_get_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_get_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_register_with_sync_manager(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_run_maintenance(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_scrub_encrypted_data(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_scrub_undecryptable_credit_card_data_for_remote_replacement(`ptr`: Long,`localEncryptionKey`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_method_store_shutdown(`ptr`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_touch_address(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_touch_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_touch_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_update_address(`ptr`: Long,`guid`: RustBuffer.ByValue,`a`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_update_address_with_meta(`ptr`: Long,`entryWithMeta`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_update_credit_card(`ptr`: Long,`guid`: RustBuffer.ByValue,`cc`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_method_store_update_passport(`ptr`: Long,`guid`: RustBuffer.ByValue,`p`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun uniffi_autofill_fn_func_create_autofill_key(uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_func_decrypt_string(`key`: RustBuffer.ByValue,`ciphertext`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun uniffi_autofill_fn_func_encrypt_string(`key`: RustBuffer.ByValue,`cleartext`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun ffi_autofill_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun ffi_autofill_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun ffi_autofill_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    external fun ffi_autofill_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun ffi_autofill_rust_future_poll_u8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_u8(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_u8(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    external fun ffi_autofill_rust_future_poll_i8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_i8(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_i8(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    external fun ffi_autofill_rust_future_poll_u16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_u16(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_u16(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    external fun ffi_autofill_rust_future_poll_i16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_i16(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_i16(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Short
+    external fun ffi_autofill_rust_future_poll_u32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_u32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_u32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    external fun ffi_autofill_rust_future_poll_i32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_i32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_i32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    external fun ffi_autofill_rust_future_poll_u64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_u64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_u64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun ffi_autofill_rust_future_poll_i64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_i64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_i64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Long
+    external fun ffi_autofill_rust_future_poll_f32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_f32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_f32(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Float
+    external fun ffi_autofill_rust_future_poll_f64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_f64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_f64(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Double
+    external fun ffi_autofill_rust_future_poll_rust_buffer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_rust_buffer(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_rust_buffer(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    external fun ffi_autofill_rust_future_poll_void(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_cancel_void(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_free_void(`handle`: Long,
+    ): Unit
+    external fun ffi_autofill_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
 
-    
+        
 }
 
 private fun uniffiCheckContractApiVersion(lib: IntegrityCheckingUniffiLib) {
@@ -1412,6 +1449,11 @@ open class AddressesBridgedEngine: Disposable, AutoCloseable, AddressesBridgedEn
     private val wasDestroyed = AtomicBoolean(false)
     private val callCounter = AtomicLong(1)
 
+    /**
+     * Whether the current object has been destroyed and its reference is gone in the Rust side.
+     */
+    val uniffiIsDestroyed: Boolean get() = wasDestroyed.get()
+
     override fun destroy() {
         // Only allow a single call to this method.
         // TODO: maybe we should log a warning if called more than once?
@@ -1484,6 +1526,7 @@ open class AddressesBridgedEngine: Disposable, AutoCloseable, AddressesBridgedEn
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_addressesbridgedengine_apply(
         it,
+        
         FfiConverterLong.lower(`serverModifiedMillis`),_status)
 }
     }
@@ -1498,6 +1541,7 @@ open class AddressesBridgedEngine: Disposable, AutoCloseable, AddressesBridgedEn
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_addressesbridgedengine_ensure_current_sync_id(
         it,
+        
         FfiConverterString.lower(`newSyncId`),_status)
 }
     }
@@ -1553,7 +1597,9 @@ open class AddressesBridgedEngine: Disposable, AutoCloseable, AddressesBridgedEn
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_addressesbridgedengine_set_uploaded(
         it,
-        FfiConverterLong.lower(`newTimestamp`),FfiConverterSequenceString.lower(`uploadedIds`),_status)
+        
+        FfiConverterLong.lower(`newTimestamp`),
+        FfiConverterSequenceString.lower(`uploadedIds`),_status)
 }
     }
     
@@ -1566,6 +1612,7 @@ open class AddressesBridgedEngine: Disposable, AutoCloseable, AddressesBridgedEn
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_addressesbridgedengine_store_incoming(
         it,
+        
         FfiConverterSequenceString.lower(`incomingEnvelopesAsJson`),_status)
 }
     }
@@ -1879,6 +1926,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_constructor_store_new(
     
+        
         FfiConverterString.lower(`dbpath`),_status)
 }
     )
@@ -1888,6 +1936,11 @@ open class Store: Disposable, AutoCloseable, StoreInterface
 
     private val wasDestroyed = AtomicBoolean(false)
     private val callCounter = AtomicLong(1)
+
+    /**
+     * Whether the current object has been destroyed and its reference is gone in the Rust side.
+     */
+    val uniffiIsDestroyed: Boolean get() = wasDestroyed.get()
 
     override fun destroy() {
         // Only allow a single call to this method.
@@ -1961,6 +2014,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_address(
         it,
+        
         FfiConverterTypeUpdatableAddressFields.lower(`a`),_status)
 }
     }
@@ -1975,6 +2029,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_address_with_meta(
         it,
+        
         FfiConverterTypeUpdatableAddressFieldsWithMeta.lower(`entryWithMeta`),_status)
 }
     }
@@ -1989,6 +2044,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_credit_card(
         it,
+        
         FfiConverterTypeUpdatableCreditCardFields.lower(`cc`),_status)
 }
     }
@@ -2003,6 +2059,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_many_address_tombstones(
         it,
+        
         FfiConverterSequenceTypeAddressTombstone.lower(`tombstones`),_status)
 }
     }
@@ -2017,6 +2074,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_many_addresses_with_meta(
         it,
+        
         FfiConverterSequenceTypeUpdatableAddressFieldsWithMeta.lower(`entriesWithMeta`),_status)
 }
     }
@@ -2031,6 +2089,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_add_passport(
         it,
+        
         FfiConverterTypeUpdatablePassportFields.lower(`p`),_status)
 }
     }
@@ -2105,6 +2164,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_delete_address(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2135,6 +2195,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_delete_credit_card(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2149,6 +2210,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_delete_passport(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2163,6 +2225,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_get_address(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2219,6 +2282,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_get_credit_card(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2233,6 +2297,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_get_passport(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2299,6 +2364,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_scrub_undecryptable_credit_card_data_for_remote_replacement(
         it,
+        
         FfiConverterString.lower(`localEncryptionKey`),_status)
 }
     }
@@ -2325,6 +2391,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_touch_address(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2338,6 +2405,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_touch_credit_card(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2351,6 +2419,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_touch_passport(
         it,
+        
         FfiConverterString.lower(`guid`),_status)
 }
     }
@@ -2364,7 +2433,9 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_update_address(
         it,
-        FfiConverterString.lower(`guid`),FfiConverterTypeUpdatableAddressFields.lower(`a`),_status)
+        
+        FfiConverterString.lower(`guid`),
+        FfiConverterTypeUpdatableAddressFields.lower(`a`),_status)
 }
     }
     
@@ -2377,6 +2448,7 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_update_address_with_meta(
         it,
+        
         FfiConverterTypeUpdatableAddressFieldsWithMeta.lower(`entryWithMeta`),_status)
 }
     }
@@ -2390,7 +2462,9 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_update_credit_card(
         it,
-        FfiConverterString.lower(`guid`),FfiConverterTypeUpdatableCreditCardFields.lower(`cc`),_status)
+        
+        FfiConverterString.lower(`guid`),
+        FfiConverterTypeUpdatableCreditCardFields.lower(`cc`),_status)
 }
     }
     
@@ -2403,7 +2477,9 @@ open class Store: Disposable, AutoCloseable, StoreInterface
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_method_store_update_passport(
         it,
-        FfiConverterString.lower(`guid`),FfiConverterTypeUpdatablePassportFields.lower(`p`),_status)
+        
+        FfiConverterString.lower(`guid`),
+        FfiConverterTypeUpdatablePassportFields.lower(`p`),_status)
 }
     }
     
@@ -3194,7 +3270,7 @@ public object FfiConverterTypeAddressBulkResultEntry : FfiConverterRustBuffer<Ad
         }
     }
 
-    override fun allocationSize(value: AddressBulkResultEntry) = when(value) {
+    override fun allocationSize(value: AddressBulkResultEntry): ULong = when(value) {
         is AddressBulkResultEntry.Success -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -3280,7 +3356,7 @@ public object FfiConverterTypeAddressBulkTombstoneResultEntry : FfiConverterRust
         }
     }
 
-    override fun allocationSize(value: AddressBulkTombstoneResultEntry) = when(value) {
+    override fun allocationSize(value: AddressBulkTombstoneResultEntry): ULong = when(value) {
         is AddressBulkTombstoneResultEntry.Success -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -3765,7 +3841,9 @@ public object FfiConverterSequenceTypeAddressBulkTombstoneResultEntry: FfiConver
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_func_decrypt_string(
     
-        FfiConverterString.lower(`key`),FfiConverterString.lower(`ciphertext`),_status)
+        
+        FfiConverterString.lower(`key`),
+        FfiConverterString.lower(`ciphertext`),_status)
 }
     )
     }
@@ -3779,7 +3857,9 @@ public object FfiConverterSequenceTypeAddressBulkTombstoneResultEntry: FfiConver
     uniffiRustCallWithError(AutofillApiException) { _status ->
     UniffiLib.uniffi_autofill_fn_func_encrypt_string(
     
-        FfiConverterString.lower(`key`),FfiConverterString.lower(`cleartext`),_status)
+        
+        FfiConverterString.lower(`key`),
+        FfiConverterString.lower(`cleartext`),_status)
 }
     )
     }
