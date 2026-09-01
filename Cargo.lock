@@ -3168,7 +3168,7 @@ dependencies = [
  "suggest",
  "tabs",
  "tracing-support",
- "uniffi 0.31.0",
+ "uniffi 0.32.0",
  "webext-storage",
 ]
 
@@ -5372,7 +5372,7 @@ dependencies = [
  "unic-langid",
  "unic-langid-impl",
  "unicode-bidi",
- "uniffi 0.31.0",
+ "uniffi 0.32.0",
  "url",
  "uuid",
  "winapi",
@@ -8663,9 +8663,9 @@ name = "uniffi-bindgen-gecko-js"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "askama 0.14.0",
+ "askama 0.16.0",
  "camino",
- "cargo_metadata 0.19.2",
+ "cargo_metadata 0.23.1",
  "clap",
  "extend",
  "heck",
@@ -8674,9 +8674,9 @@ dependencies = [
  "serde",
  "textwrap",
  "toml 0.5.999",
- "uniffi 0.31.0",
- "uniffi_bindgen 0.31.0",
- "uniffi_pipeline 0.31.0",
+ "uniffi 0.32.0",
+ "uniffi_bindgen 0.32.0",
+ "uniffi_pipeline 0.32.0",
 ]
 
 [[package]]
@@ -8724,7 +8724,6 @@ dependencies = [
  "uniffi_internal_macros 0.31.0",
  "uniffi_meta 0.31.0",
  "uniffi_pipeline 0.31.0",
- "uniffi_testing",
  "uniffi_udl 0.31.0",
 ]
 
@@ -8751,6 +8750,7 @@ dependencies = [
  "uniffi_internal_macros 0.32.0",
  "uniffi_meta 0.32.0",
  "uniffi_pipeline 0.32.0",
+ "uniffi_testing",
  "uniffi_udl 0.32.0",
 ]
 
@@ -8760,7 +8760,7 @@ version = "0.29.0"
 dependencies = [
  "async-trait",
  "thiserror 1.999.999",
- "uniffi 0.31.0",
+ "uniffi 0.32.0",
  "url",
 ]
 
@@ -8768,7 +8768,7 @@ dependencies = [
 name = "uniffi_bindings_tests_collision"
 version = "0.1.0"
 dependencies = [
- "uniffi 0.31.0",
+ "uniffi 0.32.0",
  "uniffi_bindings_tests",
 ]
 
@@ -8777,7 +8777,7 @@ name = "uniffi_bindings_tests_external_types"
 version = "0.29.0"
 dependencies = [
  "thiserror 1.999.999",
- "uniffi 0.31.0",
+ "uniffi 0.32.0",
  "uniffi_bindings_tests",
 ]
 
@@ -8939,14 +8939,14 @@ dependencies = [
 
 [[package]]
 name = "uniffi_testing"
-version = "0.31.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4802bed208a296657eef3451a961a6502e1d7aa8930b4b0cd952ed4f81a3957e"
+checksum = "fec91e7b3d258554335da3d4ecf3d055f7bb4a34aa52b89d28ad2380e10579a0"
 dependencies = [
  "anyhow",
  "camino",
- "cargo_metadata 0.19.2",
- "fs-err 2.9.0",
+ "cargo_metadata 0.23.1",
+ "fs-err 3.3.1",
  "once_cell",
 ]
 
