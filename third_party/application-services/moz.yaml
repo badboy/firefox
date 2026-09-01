@@ -32,12 +32,12 @@ origin:
   license-file: "LICENSE"
 
   # Automatically managed by vendor process
-  release: 81363f66a34f2367577d7b1e2e526b82bf4e37d7 (2026-08-31T19:25:20Z).
-  revision: 81363f66a34f2367577d7b1e2e526b82bf4e37d7
+  release: f182d9d8cf7a587306dd108464c49b29ef47258f (2026-09-01T12:22:01Z).
+  revision: f182d9d8cf7a587306dd108464c49b29ef47258f
 
 vendoring:
   # Canonical repository is on GitHub
-  url: https://github.com/mozilla/application-services
+  url: https://github.com/badboy/application-services
   source-hosting: github
   # While we are vendoring from the external repository use the 'third_party'
   # folder. When application-services eventually moves entirely in tree we will
