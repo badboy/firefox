@@ -37,6 +37,7 @@ export var UnitTestObjs = {
 
 
 
+
 // Export the FFIConverter object to make external types work.
 export class FfiConverterOptionalUInt64 extends FfiConverterArrayBuffer {
     static checkType(value) {
@@ -625,7 +626,7 @@ export class FfiConverterSequenceString extends FfiConverterArrayBuffer {
 }
 
 /**
- * MozAdsIabContentTaxonomy
+ * MozAdsIABContentTaxonomy
  */
 export const MozAdsIabContentTaxonomy = Object.freeze({
     /**
@@ -799,7 +800,7 @@ export class FfiConverterTypeMozAdsContentCategory extends FfiConverterArrayBuff
     }
 }
 /**
- * MozAdsIabContent
+ * MozAdsIABContent
  */
 export class MozAdsIabContent {
     constructor(
@@ -1496,7 +1497,7 @@ export class MozAdsRequestOptions {
          */
         this.cachePolicy = cachePolicy;
         /**
-         * @type {object}
+         * @type {Map}
          */
         this.flags = flags;
         /**
@@ -1758,7 +1759,7 @@ export class MozAdsSpocRanking {
          */
         this.itemScore = itemScore;
         /**
-         * @type {object}
+         * @type {Map}
          */
         this.personalizationModels = personalizationModels;
         /**
@@ -2961,7 +2962,7 @@ export class MozAdsClientInterface {
      * requestImageAds
      * @param {Array.<MozAdsPlacementRequest>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestImageAds(
         mozAdRequests, 
@@ -2972,7 +2973,7 @@ export class MozAdsClientInterface {
      * requestSpocAds
      * @param {Array.<MozAdsPlacementRequestWithCount>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestSpocAds(
         mozAdRequests, 
@@ -2983,7 +2984,7 @@ export class MozAdsClientInterface {
      * requestTileAds
      * @param {Array.<MozAdsPlacementRequest>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestTileAds(
         mozAdRequests, 
@@ -3023,7 +3024,7 @@ export class MozAdsClient extends MozAdsClientInterface {
     async clearCache() {
        
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            1, // uniffi_ads_client_fn_method_mozadsclient_clear_cache
+            23, // uniffi_ads_client_fn_method_mozadsclient_clear_cache
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
         )
         return handleRustResult(
@@ -3045,7 +3046,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterString.checkType(clickUrl);
         FfiConverterOptionalTypeMozAdsCallbackOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            2, // uniffi_ads_client_fn_method_mozadsclient_record_click
+            24, // uniffi_ads_client_fn_method_mozadsclient_record_click
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterString.lower(clickUrl),
             FfiConverterOptionalTypeMozAdsCallbackOptions.lower(options),
@@ -3069,7 +3070,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterString.checkType(impressionUrl);
         FfiConverterOptionalTypeMozAdsCallbackOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            3, // uniffi_ads_client_fn_method_mozadsclient_record_impression
+            25, // uniffi_ads_client_fn_method_mozadsclient_record_impression
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterString.lower(impressionUrl),
             FfiConverterOptionalTypeMozAdsCallbackOptions.lower(options),
@@ -3096,7 +3097,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterTypeMozAdsReportReason.checkType(reason);
         FfiConverterOptionalTypeMozAdsCallbackOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            4, // uniffi_ads_client_fn_method_mozadsclient_report_ad
+            26, // uniffi_ads_client_fn_method_mozadsclient_report_ad
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterString.lower(reportUrl),
             FfiConverterTypeMozAdsReportReason.lower(reason),
@@ -3113,7 +3114,7 @@ export class MozAdsClient extends MozAdsClientInterface {
      * requestImageAds
      * @param {Array.<MozAdsPlacementRequest>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestImageAds(
         mozAdRequests, 
@@ -3122,7 +3123,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterSequenceTypeMozAdsPlacementRequest.checkType(mozAdRequests);
         FfiConverterOptionalTypeMozAdsRequestOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            5, // uniffi_ads_client_fn_method_mozadsclient_request_image_ads
+            27, // uniffi_ads_client_fn_method_mozadsclient_request_image_ads
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterSequenceTypeMozAdsPlacementRequest.lower(mozAdRequests),
             FfiConverterOptionalTypeMozAdsRequestOptions.lower(options),
@@ -3138,7 +3139,7 @@ export class MozAdsClient extends MozAdsClientInterface {
      * requestSpocAds
      * @param {Array.<MozAdsPlacementRequestWithCount>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestSpocAds(
         mozAdRequests, 
@@ -3147,7 +3148,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterSequenceTypeMozAdsPlacementRequestWithCount.checkType(mozAdRequests);
         FfiConverterOptionalTypeMozAdsRequestOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            6, // uniffi_ads_client_fn_method_mozadsclient_request_spoc_ads
+            28, // uniffi_ads_client_fn_method_mozadsclient_request_spoc_ads
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterSequenceTypeMozAdsPlacementRequestWithCount.lower(mozAdRequests),
             FfiConverterOptionalTypeMozAdsRequestOptions.lower(options),
@@ -3163,7 +3164,7 @@ export class MozAdsClient extends MozAdsClientInterface {
      * requestTileAds
      * @param {Array.<MozAdsPlacementRequest>} mozAdRequests
      * @param {?MozAdsRequestOptions} options
-     * @returns {Promise<object>}}
+     * @returns {Promise<Map>}}
      */
     async requestTileAds(
         mozAdRequests, 
@@ -3172,7 +3173,7 @@ export class MozAdsClient extends MozAdsClientInterface {
         FfiConverterSequenceTypeMozAdsPlacementRequest.checkType(mozAdRequests);
         FfiConverterOptionalTypeMozAdsRequestOptions.checkType(options);
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            7, // uniffi_ads_client_fn_method_mozadsclient_request_tile_ads
+            29, // uniffi_ads_client_fn_method_mozadsclient_request_tile_ads
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
             FfiConverterSequenceTypeMozAdsPlacementRequest.lower(mozAdRequests),
             FfiConverterOptionalTypeMozAdsRequestOptions.lower(options),
@@ -3190,7 +3191,7 @@ export class MozAdsClient extends MozAdsClientInterface {
     async shutdown() {
        
         const result = await UniFFIScaffolding.callAsyncWrapper(
-            8, // uniffi_ads_client_fn_method_mozadsclient_shutdown
+            30, // uniffi_ads_client_fn_method_mozadsclient_shutdown
             FfiConverterTypeMozAdsClient.lowerReceiver(this),
         )
         return handleRustResult(
@@ -3224,11 +3225,11 @@ export class FfiConverterTypeMozAdsClient extends FfiConverter {
     }
 
     static read(dataStream) {
-        return this.lift(dataStream.readPointer(1));
+        return this.lift(dataStream.readPointer(0));
     }
 
     static write(dataStream, value) {
-        dataStream.writePointer(1, this.lower(value));
+        dataStream.writePointer(0, this.lower(value));
     }
 
     static computeSize(value) {
@@ -3276,7 +3277,7 @@ export class MozAdsContextIdProviderImpl extends MozAdsContextIdProvider {
     contextId() {
        
         const result = UniFFIScaffolding.callSync(
-            9, // uniffi_ads_client_fn_method_mozadscontextidprovider_context_id
+            37, // uniffi_ads_client_fn_method_mozadscontextidprovider_context_id
             FfiConverterTypeMozAdsContextIdProvider.lowerReceiver(this),
         )
         return handleRustResult(
@@ -3301,7 +3302,7 @@ export class FfiConverterTypeMozAdsContextIdProvider extends FfiConverter {
           return new MozAdsContextIdProviderImpl(opts);
         } else {
           // JS handle.  Get the JS object from the callback handler
-          return uniffiCallbackHandlerAdsClientMozAdsContextIdProvider.takeCallbackObj(handle)
+          return uniffiCallbackHandlerMozAdsContextIdProvider.takeCallbackObj(handle)
         }
     }
 
@@ -3315,11 +3316,11 @@ export class FfiConverterTypeMozAdsContextIdProvider extends FfiConverter {
           if (!(value instanceof MozAdsContextIdProvider)) {
               throw new UniFFITypeError("expected 'MozAdsContextIdProvider' subclass");
           }
-          return uniffiCallbackHandlerAdsClientMozAdsContextIdProvider.storeCallbackObj(value)
+          return uniffiCallbackHandlerMozAdsContextIdProvider.storeCallbackObj(value)
         }
     }
 
-    // lowerReceiver is used when calling methods on an interface we got from Rust, 
+    // lowerReceiver is used when calling methods on an interface we got from Rust,
     // it treats value like a regular interface.
     static lowerReceiver(value) {
         const ptr = value[uniffiObjectPtr];
@@ -3330,13 +3331,13 @@ export class FfiConverterTypeMozAdsContextIdProvider extends FfiConverter {
     }
 
     static read(dataStream) {
-        return this.lift(dataStream.readHandleOrPointer(2))
+        return this.lift(dataStream.readHandleOrPointer(1))
     }
 
     static write(dataStream, value) {
         if (value[uniffiObjectPtr] instanceof UniFFIPointer) {
           // Rust-implemented interface, return the ptr.
-          dataStream.writePointer(2, this.lower(value));
+          dataStream.writePointer(1, this.lower(value));
         } else {
           dataStream.writeInt64(this.lower(value))
         }
@@ -3347,9 +3348,9 @@ export class FfiConverterTypeMozAdsContextIdProvider extends FfiConverter {
     }
 }
 
-const uniffiCallbackHandlerAdsClientMozAdsContextIdProvider = new UniFFICallbackHandler(
+const uniffiCallbackHandlerMozAdsContextIdProvider = new UniFFICallbackHandler(
     "MozAdsContextIdProvider",
-    2,
+    1,
     [
         new UniFFICallbackMethodHandler(
             "contextId",
@@ -3364,7 +3365,7 @@ const uniffiCallbackHandlerAdsClientMozAdsContextIdProvider = new UniFFICallback
 );
 
 // Allow the shutdown-related functionality to be tested in the unit tests
-UnitTestObjs.uniffiCallbackHandlerAdsClientMozAdsContextIdProvider = uniffiCallbackHandlerAdsClientMozAdsContextIdProvider;
+UnitTestObjs.uniffiCallbackHandlerMozAdsContextIdProvider = uniffiCallbackHandlerMozAdsContextIdProvider;
 
 /**
  * MozAdsTelemetry
@@ -3427,11 +3428,11 @@ export class FfiConverterTypeMozAdsTelemetry extends FfiConverter {
         if (!(callbackObj instanceof MozAdsTelemetry)) {
             throw new UniFFITypeError("expected 'MozAdsTelemetry' subclass");
         }
-        return uniffiCallbackHandlerAdsClientMozAdsTelemetry.storeCallbackObj(callbackObj)
+        return uniffiCallbackHandlerMozAdsTelemetry.storeCallbackObj(callbackObj)
     }
 
     static lift(handleId) {
-        return uniffiCallbackHandlerAdsClientMozAdsTelemetry.takeCallbackObj(handleId)
+        return uniffiCallbackHandlerMozAdsTelemetry.takeCallbackObj(handleId)
     }
 
     static read(dataStream) {
@@ -3446,9 +3447,9 @@ export class FfiConverterTypeMozAdsTelemetry extends FfiConverter {
         return 8;
     }
 }
-const uniffiCallbackHandlerAdsClientMozAdsTelemetry = new UniFFICallbackHandler(
+const uniffiCallbackHandlerMozAdsTelemetry = new UniFFICallbackHandler(
     "MozAdsTelemetry",
-    1,
+    0,
     [
         new UniFFICallbackMethodHandler(
             "recordBuildCacheError",
@@ -3508,7 +3509,7 @@ const uniffiCallbackHandlerAdsClientMozAdsTelemetry = new UniFFICallbackHandler(
 );
 
 // Allow the shutdown-related functionality to be tested in the unit tests
-UnitTestObjs.uniffiCallbackHandlerAdsClientMozAdsTelemetry = uniffiCallbackHandlerAdsClientMozAdsTelemetry;
+UnitTestObjs.uniffiCallbackHandlerMozAdsTelemetry = uniffiCallbackHandlerMozAdsTelemetry;
 
 /**
  * MozAdsClientBuilderInterface
@@ -3584,7 +3585,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
     static init() {
        
         const result = UniFFIScaffolding.callSync(
-            10, // uniffi_ads_client_fn_constructor_mozadsclientbuilder_new
+            31, // uniffi_ads_client_fn_constructor_mozadsclientbuilder_new
         )
         return handleRustResult(
             result,
@@ -3600,7 +3601,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
     build() {
        
         const result = UniFFIScaffolding.callSync(
-            11, // uniffi_ads_client_fn_method_mozadsclientbuilder_build
+            32, // uniffi_ads_client_fn_method_mozadsclientbuilder_build
             FfiConverterTypeMozAdsClientBuilder.lowerReceiver(this),
         )
         return handleRustResult(
@@ -3620,7 +3621,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
        
         FfiConverterTypeMozAdsCacheConfig.checkType(cacheConfig);
         const result = UniFFIScaffolding.callSync(
-            12, // uniffi_ads_client_fn_method_mozadsclientbuilder_cache_config
+            33, // uniffi_ads_client_fn_method_mozadsclientbuilder_cache_config
             FfiConverterTypeMozAdsClientBuilder.lowerReceiver(this),
             FfiConverterTypeMozAdsCacheConfig.lower(cacheConfig),
         )
@@ -3641,7 +3642,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
        
         FfiConverterTypeMozAdsContextIdProvider.checkType(provider);
         const result = UniFFIScaffolding.callSync(
-            13, // uniffi_ads_client_fn_method_mozadsclientbuilder_context_id_provider
+            34, // uniffi_ads_client_fn_method_mozadsclientbuilder_context_id_provider
             FfiConverterTypeMozAdsClientBuilder.lowerReceiver(this),
             FfiConverterTypeMozAdsContextIdProvider.lower(provider),
         )
@@ -3662,7 +3663,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
        
         FfiConverterTypeMozAdsEnvironment.checkType(environment);
         const result = UniFFIScaffolding.callSync(
-            14, // uniffi_ads_client_fn_method_mozadsclientbuilder_environment
+            35, // uniffi_ads_client_fn_method_mozadsclientbuilder_environment
             FfiConverterTypeMozAdsClientBuilder.lowerReceiver(this),
             FfiConverterTypeMozAdsEnvironment.lower(environment),
         )
@@ -3683,7 +3684,7 @@ export class MozAdsClientBuilder extends MozAdsClientBuilderInterface {
        
         FfiConverterTypeMozAdsTelemetry.checkType(telemetry);
         const result = UniFFIScaffolding.callSync(
-            15, // uniffi_ads_client_fn_method_mozadsclientbuilder_telemetry
+            36, // uniffi_ads_client_fn_method_mozadsclientbuilder_telemetry
             FfiConverterTypeMozAdsClientBuilder.lowerReceiver(this),
             FfiConverterTypeMozAdsTelemetry.lower(telemetry),
         )
@@ -3718,17 +3719,15 @@ export class FfiConverterTypeMozAdsClientBuilder extends FfiConverter {
     }
 
     static read(dataStream) {
-        return this.lift(dataStream.readPointer(3));
+        return this.lift(dataStream.readPointer(2));
     }
 
     static write(dataStream, value) {
-        dataStream.writePointer(3, this.lower(value));
+        dataStream.writePointer(2, this.lower(value));
     }
 
     static computeSize(value) {
         return 8;
     }
 }
-
-
 
